@@ -1,7 +1,8 @@
-Title: Convert multiple WGS formats to GK
-Author: Žan Kuralt
-AuthorUrl: http://ecologistsnotebook.blogspot.com
+Title: Convert multiple WGS formats to Slovenian GK
+version: 0.5
+Authors: Žan Kuralt & Roman Luštrik
+AuthorUrl: http://ecologistsnotebook.blogspot.com & http://danganothererror.wordpress.com
 License: MIT
 DisplayMode: Showcase
-Tags: proof-of-concept, interrupt
+Tags: proof-of-concept
 Type: Shiny
