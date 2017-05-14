@@ -3,7 +3,7 @@ library(sp)
 library(measurements)
 library(rgdal)
 library(leaflet)
-source("custom_functions.R")
+source("anyWGStoDec.R")
 
 shinyServer(function(input, output) {
   
