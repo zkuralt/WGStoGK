@@ -1,9 +1,6 @@
 library(shiny)
 library(leaflet)
 
-r_colors <- rgb(t(col2rgb(colors()) / 255))
-names(r_colors) <- colors()
-
 shinyUI(fluidPage(
   titlePanel("WGStoGK - version 0.5"),
   sidebarLayout(
@@ -20,9 +17,8 @@ shinyUI(fluidPage(
       ),
     
     mainPanel(
-      # textOutput("selected.format"),
-      textOutput("coords"),
-      # textOutput("new.coords")
+      h5(strong("Original coordinates")),
+      tableOutput("coords"),
       h5(strong("Converted coordinates")),
       tableOutput("new.coords")
     )

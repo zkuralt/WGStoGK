@@ -6,6 +6,15 @@ library(leaflet)
 source("custom_functions.R")
 
 shinyServer(function(input, output) {
+  
+  
+  origCoords <- reactive({
+    x <- read.table(text = input$coords, stringsAsFactors = FALSE)
+    x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
+    names(x) <- c("lat", "long")
+    x[,1:2]
+  }) 
+  
   ## Converts coords to GK and back to WGS in order to display on map
   origInput <- reactive({
     x <- read.table(text = input$coords, stringsAsFactors = FALSE)
@@ -46,8 +55,8 @@ shinyServer(function(input, output) {
     
   })
   
-  output$coords <- renderText({
-    paste("Original coordinates:", input$coords)
+  output$coords <- renderTable({
+    origCoords()
   })
   
   ## Diplay converted coordinates
@@ -62,7 +71,8 @@ shinyServer(function(input, output) {
                        options = providerTileOptions(noWrap = TRUE)
                        
       ) %>%
-      addMarkers(data = origInput())
+      addMarkers(data = origInput()) %>%
+      addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE))
   
 })
 }) 
