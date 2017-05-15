@@ -2,7 +2,7 @@ library(shiny)
 library(leaflet)
 
 shinyUI(fluidPage(
-  titlePanel("WGStoGK - version 0.5"),
+  titlePanel("WGStoGK - version 0.6"),
   sidebarLayout(
     sidebarPanel(
       textInput("coords", label = "Coordinates input", value = "46.05116 14.46990"),
