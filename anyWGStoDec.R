@@ -6,24 +6,13 @@
 
 anyWGStoDec <- function(x){
   
-  xy <- tryCatch(sapply(x, measurements::conv_unit, from = 'deg_min_sec', to = 'dec_deg'), 
-                 error = function(e) e, warning = function(w) w) 
-  if (is.character(xy)) { 
-    return(as.numeric(xy))
-  }
-  xy <- tryCatch(sapply(x, measurements::conv_unit, from = 'deg_dec_min', to = 'dec_deg'), 
-                 error = function(e) e, warning = function(w) w) 
+  x.format <- testElements(x)
   
-  if (is.character(xy)) { 
-    return(as.numeric(xy))
-  }
-  
-  xy <- tryCatch(sapply(x, measurements::conv_unit, from = 'dec_deg', to = 'dec_deg'),
+  xy <- tryCatch(sapply(x, measurements::conv_unit, from = x.format, to = 'dec_deg'),
                  error = function(e) e, warning = function(w) w)
   if (is.character(xy)) {
     return(as.numeric(xy))
   }
-  
+ 
   return("No conversion found.")
-  
 }
