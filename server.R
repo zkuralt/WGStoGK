@@ -5,87 +5,83 @@ library(rgdal)
 library(leaflet)
 source("anyWGStoDec.R")
 source("testElements.R")
+source("convertBackToWGS.R")
+source("convertToGK.R")
 
 shinyServer(function(input, output) {
   
-  ## Original coordinates
-  origCoords <- reactive({
-    x <- read.table(text = input$coords, stringsAsFactors = FALSE)
-    x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
-    names(x) <- c("lat", "long")
-    x[,1:2]
-  }) 
-  
-  
-  ## Converts coords to GK
-  coordInput <- reactive({
-    x <- read.table(text = input$coords, stringsAsFactors = FALSE)
-    print("uvoz")
-    print(x)
-    x <- sapply(x, gsub, pattern = ",", replacement = ".")
-    print("vejice")
-    print(x)
-    x <- sapply(x, gsub, pattern = "°|'|''", replacement = " ")
-    print("presledki")
-    print(x)
-    x <- sapply(x, anyWGStoDec)
-    print("to_dec")
-    print(x)
-    x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
-    print("df")
-    print(x)
-    names(x) <- c("lat", "long")
-    coordinates(x) <- c("long", "lat")
-    # coordinates(x) <- ~long+lat
+  observeEvent(input$convertText{
     
-    # Define input and output coordinate systems.
-    proj4string(x) <- CRS("+init=epsg:4326") # WGS 84
-    CRS.new <- CRS("+proj=tmerc +lat_0=0 +lon_0=15 +k=0.9999 +x_0=500000 +y_0=-5000000 +ellps=bessel +towgs84=426.9,142.6,460.1,4.91,4.49,-12.42,17.1 +units=m +no_defs")
-    x.new <- spTransform(x, CRS.new)
-    coordinates(x.new)
+    ## Original coordinates
+    origCoords <- reactive({
+      x <- read.table(text = input$text, stringsAsFactors = FALSE)
+      x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
+      names(x) <- c("lat", "long")
+      x[,1:2]
+    }) 
     
+    origInput <- reactive({
+      x <- read.table(text = input$text, stringsAsFactors = FALSE)
+      convertBackToWGS(x)
+    })
+    
+    ## Coords imported via textInput
+    coordTextInput <- reactive({
+      # if(is.null(input$file)) {
+      x <- read.table(text = input$coords, stringsAsFactors = FALSE)
+      x <- convertToGK(x)
+      coordinates(x)
+      # }
+    })    
   })
   
-  ## Converts coords to GK and back to WGS in order to display on map
-  origInput <- reactive({
-    # wgs <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-    # coordinates(spTransform(coordInput(), wgs))
-    x <- read.table(text = input$coords, stringsAsFactors = FALSE)
-    x <- sapply(x, gsub, pattern = ",", replacement = ".")
-    x <- sapply(x, gsub, pattern = "°|'|''", replacement = " ")
-    x <- sapply(x, anyWGStoDec)
-    x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
-    names(x) <- c("lat", "long")
-    coordinates(x) <- c("long", "lat")
-
-    # Define input and output coordinate systems.
-    proj4string(x) <- CRS("+init=epsg:4326") # WGS 84
-    wgs <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-    CRS.new <- CRS("+proj=tmerc +lat_0=0 +lon_0=15 +k=0.9999 +x_0=500000 +y_0=-5000000 +ellps=bessel +towgs84=426.9,142.6,460.1,4.91,4.49,-12.42,17.1 +units=m +no_defs")
-    x.new <- spTransform(x, CRS.new)
-    x.old <- spTransform(x.new, wgs)
+  # observeEvent(input$convertFile {
+  #   
+  #   sepInput <- reactive({
+  #     print(input$sep)
+  #   })
+  #   
+  #   headInput <- reactive({
+  #     print(input$header)
+  #   })
+  #   
+  #   coordFileInput  <- reactive({
+  #     x <- read.table(file = input$file, sep = sepInput, header = headInput)
+  #     x <- convertToGK(x)
+  #     coordinates(x)
+  #     
+  #   })
+  # })
   
-    coordinates(x.old)
-})  
-  
+  ## Getting original (input) coords displayed
   output$coords <- renderTable({
-    origCoords()
-  })
+    coordinates(origCoords())
+  }, digits = 7)
   
-  ## Diplay converted coordinates
-  output$new.coords <- renderTable({
-    coordInput()
-  })
+  ## Getting converted coords displayed
+  # if(is.null(input$file)){
+    output$new.coords <- renderTable({
+      coordinates(coordTextInput())
+    }, digits = 2)
+  #   }
+  # else {
+  #   output$new.coords <- renderTable({
+  #     coordinates(coordFileInput())
+  #   }, digits = 2)}
+  
   
   output$leaflet <- renderLeaflet({
     
+    coordLabel<- apply(coordinates(origInput()), MARGIN = 1, FUN = function(z) {
+      sprintf("long: %s lat: %s", z[1], z[2])
+    })
+    
     leaflet() %>%
       addProviderTiles(providers$OpenStreetMap.Mapnik,
-                       options = providerTileOptions(noWrap = TRUE)
-                       
-      ) %>%
-      addMarkers(data = origInput()) %>%
+                       options = providerTileOptions(noWrap = TRUE)) %>%
+      addMarkers(data = origInput(), clusterOptions = markerClusterOptions(),
+                 label = coordLabel) %>%
       addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE))
-  
+    
+  })
 })
-}) 
