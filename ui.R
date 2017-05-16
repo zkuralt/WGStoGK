@@ -30,6 +30,7 @@ shinyUI(fluidPage(
                     h5(strong("Converted coordinates (GK)"))
         ),
         fluidRow(
+<<<<<<< HEAD
           splitLayout(cellWidths = c("40%", "40%"), tableOutput("coords"), tableOutput("new.coords"))
         ),
         h5(strong("Points on map")),
@@ -40,3 +41,14 @@ shinyUI(fluidPage(
       )
     )
   )))
+=======
+          splitLayout(cellWidths = c("50%", "50%"), tableOutput("coords"), tableOutput("new.coords"))
+        ),
+        h5(strong("Points on map")),
+        leafletOutput("leaflet")
+        
+        
+      )
+    )
+    )))
+>>>>>>> 07cdcdc92f91ef081800e652d3becba2d666fdae
