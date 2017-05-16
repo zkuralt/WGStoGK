@@ -1,7 +1,4 @@
 convertToGK <- function(x){
-  
-  x <- sapply(x, gsub, pattern = ",", replacement = ".")
-  x <- sapply(x, gsub, pattern = "°|'|''", replacement = " ")
   x <- sapply(x, anyWGStoDec)
   x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
   names(x) <- c("lat", "long")

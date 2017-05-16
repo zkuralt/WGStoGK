@@ -5,10 +5,9 @@
 #' @param x data frame containing WGS coordinates in deg°min'sec'' or deg°min' format
 
 anyWGStoDec <- function(x){
+  y <- testElements(x)
   
-  x.format <- testElements(x)
-  
-  xy <- tryCatch(sapply(x, measurements::conv_unit, from = x.format, to = 'dec_deg'),
+  xy <- tryCatch(sapply(x, measurements::conv_unit, from = y, to = 'dec_deg'),
                  error = function(e) e, warning = function(w) w)
   if (is.character(xy)) {
     return(as.numeric(xy))
