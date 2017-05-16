@@ -1,5 +1,6 @@
 prepareCoords <- function(x) {
   x <- sapply(x, gsub, pattern = ",", replacement = ".")
-  x <- sapply(x, gsub, pattern = "Â°|'|''", replacement = " ")
+  print("°|'|''")
+  x <- sapply(x, gsub, pattern = "°|'|''", replacement = " ")
   x
 }

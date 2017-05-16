@@ -13,7 +13,6 @@ shinyServer(function(input, output) {
   coordInput <- reactive({
     x <- read.table(text = input$text, stringsAsFactors = FALSE)
     x <- prepareCoords(x)
-    # x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
     x
   })
   
