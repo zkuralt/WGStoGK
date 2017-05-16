@@ -8,20 +8,22 @@ shinyUI(fluidPage(
   fluidRow(
     column(3,
            textInput("text", label = "Coordinates input", value = "46.05120 14.47035"),
+           actionButton("convertText", label = "Convert coordinates"), ### Make button display converted coords.
            h6("Paste your coordinates as displayed above."),
            h6("Multiple coordinates in mixed format are accepted."),
-           br(),
            h6("Accepted input formats:"),
            h6("dd°mm'ss.ss''	dd°mm'ss.ss''"),
            h6("dd°mm.mmm'	dd°mm.mmm'"),
-           h6("dd.dddd	dd.dddd")
-           # actionButton("convertText", label = "Convert coordinates"), ### Make button display converted coords.
-           # hr(),
-           # fileInput("file", label = "CSV file input", multiple = FALSE),
-           # selectInput("sep", "select separator", choices = list("comma" = ",", "period" = ".", "semicolon" = ";", "tab" = "\t")),
-           # selectInput("header", "Header", choices = c(TRUE, FALSE)),
-           # actionButton("convertFile", label = "Convert coordinates") ### Make button display converted coords.
-           # # selectInput("crs",
+           h6("dd.dddd°	dd.dddd°"),
+           hr(),
+           fileInput('file', 'Choose CSV File',
+                     accept=c('text/csv', 
+                              'text/comma-separated-values,text/plain', 
+                              '.csv')),
+           actionButton("convertFile", label = "Convert coordinates"), ### Make button display converted coords.
+           checkboxInput('header', 'Header', TRUE),
+           radioButtons('sep', 'Separator', c(Comma=',', Semicolon=';', Tab='\t', Period = '.'), ',')
+           # selectInput("crs",
            #             label = "Select preffered CRS",
            #             choices = list("EPSG:3787", "EPSG:3912",
            #                            "EPSG:3794")),
@@ -37,5 +39,5 @@ shinyUI(fluidPage(
            tableOutput("coords")),
     column(2,
            h5(strong("Converted coordinates (GK)")),
-              tableOutput("new.coords"))
+           tableOutput("new.coords"))
   )))
