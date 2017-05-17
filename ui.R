@@ -21,8 +21,9 @@ shinyUI(fluidPage(
                               'text/comma-separated-values,text/plain', 
                               '.csv')),
            actionButton("convertFile", label = "Convert coordinates"), ### Make button display converted coords.
-           checkboxInput('header', 'Header', TRUE),
-           radioButtons('sep', 'Separator', c(Comma=',', Semicolon=';', Tab='\t', Period = '.'), ',')
+           checkboxInput("header", "Header", TRUE),
+           radioButtons("sep", "Separator", c(Comma = ",", Semicolon = ";", 
+                                              Tab = "\t", Period = "."), ",")
            # selectInput("crs",
            #             label = "Select preffered CRS",
            #             choices = list("EPSG:3787", "EPSG:3912",
