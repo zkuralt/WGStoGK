@@ -66,7 +66,7 @@ shinyServer(function(input, output) {
       str(x)
       if (is.null(x))
         return(NULL)
-      x <- read.csv(x$datapath, header=input$header, sep=input$sep, 
+      x <- read.csv(x$datapath, header = FALSE, sep = input$sep, 
                     encoding = "UTF-8", stringsAsFactors = FALSE)
       print("read.table")
       str(x)
@@ -80,7 +80,7 @@ shinyServer(function(input, output) {
       x <- input$file
       if (is.null(x))
         return(NULL)
-      x <- read.csv(x$datapath, header=input$header, sep=input$sep,
+      x <- read.csv(x$datapath, header = FALSE, sep = input$sep,
                     encoding = "UTF-8", stringsAsFactors = FALSE)
       colnames(x) <- c("lat", "long")
       x
