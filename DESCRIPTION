@@ -3,6 +3,6 @@ version: 0.6
 Authors: Žan Kuralt & Roman Luštrik
 AuthorUrl: http://ecologistsnotebook.blogspot.com & http://danganothererror.wordpress.com
 License: MIT
-DisplayMode: Showcase
+DisplayMode: Normal
 Tags: proof-of-concept
 Type: Shiny
