@@ -17,9 +17,7 @@ shinyServer(function(input, output) {
     
     coordInput <- reactive({
       x <- read.table(text = input$text, stringsAsFactors = FALSE)
-      print(x)
       x <- prepareCoords(x)
-      print(x)
       x
     })
     
@@ -63,17 +61,11 @@ shinyServer(function(input, output) {
     
     coordFileInput  <- reactive({
       x <- input$file
-      print("readfile")
-      str(x)
       if (is.null(x))
         return(NULL)
       x <- read.csv(x$datapath, header = FALSE, sep = input$sep, 
                     encoding = "UTF-8", stringsAsFactors = FALSE)
-      print("read.table")
-      str(x)
-      print(x)
       x <- prepareCoords(x)
-      print(x)
       x
     })
     
