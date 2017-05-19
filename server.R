@@ -2,55 +2,117 @@ library(shiny)
 library(sp)
 library(measurements)
 library(leaflet)
+library(rgdal)
 source("anyWGStoDec.R")
 source("testElements.R")
 source("convertBackToWGS.R")
 source("convertToGK.R")
 source("prepareCoords.R")
+source("convertFileToGK.R")
 
 shinyServer(function(input, output) {
   
-  coordInput <- reactive({
-    x <- read.table(text = input$text, stringsAsFactors = FALSE)
-    x <- prepareCoords(x)
-    x
-  })
-  
-  origCoords <- reactive({
-    x <- read.table(text = input$text, stringsAsFactors = FALSE)
-    x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
-    names(x) <- c("lat", "long")
-    x[,1:2]
-  })
-  
-  convertedCoords <- reactive({
-    coordinates(convertToGK(coordInput()))
-  })
-  
-  coordsForLeaflet <- reactive({
-    coordinates(convertBackToWGS(convertToGK(coordInput())))
-  })
-  
-  output$coords <- renderTable({
-    origCoords()
-  }, digits = 5)
-  
-  output$new.coords <- renderTable({
-    coordinates(convertedCoords())
-  }, digits = 2)
-  
-  output$leaflet <- renderLeaflet({
+  ### Text input
+  observeEvent(input$convertText, {
     
-    coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
-      sprintf("long: %s lat: %s", z[1], z[2])
+    coordInput <- reactive({
+      x <- read.table(text = input$text, stringsAsFactors = FALSE)
+      print(x)
+      x <- prepareCoords(x)
+      print(x)
+      x
     })
     
-    leaflet() %>%
-      addProviderTiles(providers$OpenStreetMap.Mapnik,
-                       options = providerTileOptions(noWrap = TRUE)) %>%
-      addMarkers(data = coordsForLeaflet(), clusterOptions = markerClusterOptions(),
-                 label = coordLabel) %>%
-      addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE))
+    convertedCoords <- reactive({
+      coordinates(convertToGK(coordInput()))
+    })
     
+    coordsForLeaflet <- reactive({
+      coordinates(convertBackToWGS(convertToGK(coordInput())))
+    })
+    
+    output$coords <- renderTable({
+      x <- read.table(text = input$text, stringsAsFactors = FALSE)
+      x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
+      names(x) <- c("lat", "long")
+      x
+    }, digits = 5)
+    
+    output$new.coords <- renderTable({
+      coordinates(convertedCoords())
+    }, digits = 2)
+    
+    output$leaflet <- renderLeaflet({
+      
+      coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
+        sprintf("long: %s lat: %s", z[1], z[2])
+      })
+      
+      leaflet() %>%
+        addProviderTiles(providers$OpenStreetMap.Mapnik,
+                         options = providerTileOptions(noWrap = TRUE)) %>%
+        addMarkers(data = coordsForLeaflet(), clusterOptions = markerClusterOptions(),
+                   label = coordLabel) %>%
+        addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE))
+      
+    })
+  })
+  
+  ### File input
+  observeEvent(input$convertFile, {
+    
+    coordFileInput  <- reactive({
+      x <- input$file
+      print("readfile")
+      str(x)
+      if (is.null(x))
+        return(NULL)
+      x <- read.csv(x$datapath, header = FALSE, sep = input$sep, 
+                    encoding = "UTF-8", stringsAsFactors = FALSE)
+      print("read.table")
+      str(x)
+      print(x)
+      x <- prepareCoords(x)
+      print(x)
+      x
+    })
+    
+    output$coords <- renderTable({
+      x <- input$file
+      if (is.null(x))
+        return(NULL)
+      x <- read.csv(x$datapath, header = FALSE, sep = input$sep,
+                    encoding = "UTF-8", stringsAsFactors = FALSE)
+      colnames(x) <- c("lat", "long")
+      x
+    }, digits = 5)
+    
+    convertedCoords <- reactive({
+      coordinates(convertFileToGK(coordFileInput()))
+    })
+    
+    coordsForLeaflet <- reactive({
+      coordinates(convertBackToWGS(convertFileToGK(coordFileInput())))
+    })
+    
+    
+    output$new.coords <- renderTable({
+      coordinates(convertedCoords())
+    }, digits = 2)
+    
+    output$leaflet <- renderLeaflet({
+      
+      coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
+        sprintf("long: %s lat: %s", z[1], z[2])
+      })
+      
+      leaflet() %>%
+        addProviderTiles(providers$OpenStreetMap.Mapnik,
+                         options = providerTileOptions(noWrap = TRUE)) %>%
+        addMarkers(data = coordsForLeaflet(), clusterOptions = markerClusterOptions(),
+                   label = coordLabel) %>%
+        addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE))
+      
+    })
   })
 })
