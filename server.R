@@ -54,6 +54,14 @@ shinyServer(function(input, output) {
         addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE))
       
     })
+    
+    output$download <- downloadHandler(
+      filename = function() { paste("converted", ".csv", sep="") },
+      content = function(file) {
+        write.csv(convertedCoords(), file, row.names = FALSE, dec = ".", sep = ",",
+                  fileEncoding = "UTF-8")
+      }
+    )
   })
   
   ### File input
@@ -106,5 +114,15 @@ shinyServer(function(input, output) {
         addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE))
       
     })
+    
+    output$download <- downloadHandler(
+      filename = function() { paste("converted", ".csv", sep="") },
+      content = function(file) {
+        write.csv(convertedCoords(), file, row.names = FALSE, dec = ".", sep = ",",
+                        fileEncoding = "UTF-8")
+      }
+    )
   })
+  
+  
 })
