@@ -58,8 +58,7 @@ shinyServer(function(input, output) {
     output$download <- downloadHandler(
       filename = function() { paste("converted", ".csv", sep="") },
       content = function(file) {
-        write.csv(convertedCoords(), file, row.names = FALSE, dec = ".", sep = ",",
-                  fileEncoding = "UTF-8")
+        write.csv(convertedCoords(), file, row.names = FALSE)
       }
     )
   })
@@ -118,8 +117,7 @@ shinyServer(function(input, output) {
     output$download <- downloadHandler(
       filename = function() { paste("converted", ".csv", sep="") },
       content = function(file) {
-        write.csv(convertedCoords(), file, row.names = FALSE, dec = ".", sep = ",",
-                        fileEncoding = "UTF-8")
+        write.csv(convertedCoords(), file, row.names = FALSE)
       }
     )
   })
