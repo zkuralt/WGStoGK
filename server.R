@@ -41,7 +41,6 @@ shinyServer(function(input, output) {
     }, digits = 2)
     
     output$leaflet <- renderLeaflet({
-      
       coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
         sprintf("long: %s lat: %s", z[1], z[2])
       })
@@ -66,12 +65,10 @@ shinyServer(function(input, output) {
             return(NULL)
           x <- read.table(text = input$text, stringsAsFactors = FALSE)
           x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
-          names(x) <- c("lat.orig", "long.orig")
-          x <- sapply(x, as.character)
-          print(x)
-          print(class(x))
-          print(str(x))
-          write.csv(cbind(x, convertedCoords()), file, row.names = FALSE)
+          x <- data.frame(matrix(sapply(x, as.character), ncol = 2, byrow = TRUE))
+          x <- cbind(x, convertedCoords())
+          names(x) <- c("lat.orig", "long.orig", "long.new", "lat.new")
+          write.csv(x, file, row.names = FALSE)
         }
         
       }
@@ -142,8 +139,9 @@ shinyServer(function(input, output) {
             return(NULL)
           x <- read.csv(x$datapath, header = FALSE, sep = input$sep,
                         encoding = "UTF-8", stringsAsFactors = FALSE)
-          colnames(x) <- c("lat.orig", "long.orig")
-          write.csv(cbind(x,convertedCoords()), file, row.names = FALSE)
+          x <- cbind(x,convertedCoords())
+          colnames(x) <- c("lat.orig", "long.orig", "long.new", "lat.new")
+          write.csv(x, file, row.names = FALSE)
         }
           
       }
