@@ -64,6 +64,7 @@ shinyServer(function(input, output) {
           if (is.null(x))
             return(NULL)
           x <- read.table(text = input$text, stringsAsFactors = FALSE)
+          x <- sapply(x, gsub, pattern = "\U00B0", replacement = "\U00B0")
           x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
           x <- data.frame(matrix(sapply(x, as.character), ncol = 2, byrow = TRUE))
           x <- cbind(x, convertedCoords())
@@ -139,6 +140,8 @@ shinyServer(function(input, output) {
             return(NULL)
           x <- read.csv(x$datapath, header = FALSE, sep = input$sep,
                         encoding = "UTF-8", stringsAsFactors = FALSE)
+          x <- sapply(x, gsub, pattern = "\U00B0", replacement = "\U00B0")
+          print(x)
           x <- cbind(x,convertedCoords())
           colnames(x) <- c("lat.orig", "long.orig", "long.new", "lat.new")
           write.csv(x, file, row.names = FALSE)
