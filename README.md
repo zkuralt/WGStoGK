@@ -2,7 +2,7 @@ Tired of converting WGS coordinates to Gauss-Krüger one at a time?
 
 This application will convert WGS84 coordinates (what you would encounter on say Google Maps or GPS devices) to Gauss-Krüger system. The latter is useful because units are in meters.
 
-This application will enable you to batch convert coordinates with ease. You can copy data from your spreadsheet editor into the application. It will convert coordinates to GK upon click. You can also upload a batch file. It supports all three WGS84 coordinate notations (`dd°mm'ss.ss''`, `dd°mm.mmm'`, `dd.dddd°`). Right now the CRS in use is `+proj=tmerc +lat_0=0 +lon_0=15 +k=0.9999 +x_0=500000 +y_0=-5000000 +ellps=bessel +towgs84=426.9,142.6,460.1,4.91,4.49,-12.42,17.1 +units=m +no_defs`.
+This application will enable you to batch convert coordinates with ease. You can copy data from your spreadsheet editor into the application. It will convert coordinates to GK upon click. You can also upload a batch file. It supports all three WGS84 coordinate notations (`dd°mm'ss.ss''`, `dd°mm.mmm'`, `dd.dddd°`). Right now the CRS in use is `+proj=tmerc +lat_0=0 +lon_0=15 +k=0.9999 +x_0=500000 +y_0=-5000000 +ellps=bessel +towgs84=426.9,142.6,460.1,4.91,4.49,-12.42,17.1 +units=m +no_defs` (see [this SO answer](https://gis.stackexchange.com/a/43417/1924) and [Spatial Analyst website](http://spatial-analyst.net/wiki/index.php?title=MGI_/_Balkans_coordinate_systems)).
 
 ![](workflow.jpg)
 
