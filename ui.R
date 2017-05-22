@@ -48,6 +48,7 @@ shinyUI(fluidPage(
     column(2,
            h5(strong("Converted coordinates (GK)")),
            tableOutput("new.coords"),
-           downloadButton("download", label = "Download CSV file"))
+           downloadButton("download", label = "Download CSV file"),
+           checkboxInput("append", label = "Add original coordinates to downloaded file", value = FALSE))
     )))
   

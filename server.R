@@ -58,7 +58,22 @@ shinyServer(function(input, output) {
     output$download <- downloadHandler(
       filename = function() { paste("converted", ".csv", sep="") },
       content = function(file) {
-        write.csv(convertedCoords(), file, row.names = FALSE)
+        if(input$append == FALSE) {
+          write.csv(convertedCoords(), file, row.names = FALSE)
+        } else {
+          x <- input$text
+          if (is.null(x))
+            return(NULL)
+          x <- read.table(text = input$text, stringsAsFactors = FALSE)
+          x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
+          names(x) <- c("lat.orig", "long.orig")
+          x <- sapply(x, as.character)
+          print(x)
+          print(class(x))
+          print(str(x))
+          write.csv(cbind(x, convertedCoords()), file, row.names = FALSE)
+        }
+        
       }
     )
   })
@@ -114,10 +129,23 @@ shinyServer(function(input, output) {
       
     })
     
+    
+    
     output$download <- downloadHandler(
       filename = function() { paste("converted", ".csv", sep="") },
       content = function(file) {
-        write.csv(convertedCoords(), file, row.names = FALSE)
+        if(input$append == FALSE) {
+          write.csv(convertedCoords(), file, row.names = FALSE)
+        } else {
+          x <- input$file
+          if (is.null(x))
+            return(NULL)
+          x <- read.csv(x$datapath, header = FALSE, sep = input$sep,
+                        encoding = "UTF-8", stringsAsFactors = FALSE)
+          colnames(x) <- c("lat.orig", "long.orig")
+          write.csv(cbind(x,convertedCoords()), file, row.names = FALSE)
+        }
+          
       }
     )
   })
