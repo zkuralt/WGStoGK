@@ -3,6 +3,7 @@ library(sp)
 library(measurements)
 library(leaflet)
 library(rgdal)
+library(googleway)
 source("anyWGStoDec.R")
 source("testElements.R")
 source("convertBackToWGS.R")
@@ -32,7 +33,7 @@ shinyServer(function(input, output) {
     output$coords <- renderTable({
       x <- read.table(text = input$text, stringsAsFactors = FALSE)
       x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
-      names(x) <- c("lat", "long")
+      names(x) <- c("lat", "lon")
       x
     }, digits = 5)
     
@@ -54,6 +55,18 @@ shinyServer(function(input, output) {
       
     })
     
+    output$elevation <- renderTable({
+      if (input$elevation == TRUE) { 
+      elev <- google_elevation(df_locations = as.data.frame(coordsForLeaflet()),
+                               location_type = "individual", 
+                               key = "AIzaSyATwD1Zqpv8M0SPddTLIsDPNo4QAikVTg4",
+                               simplify = TRUE)
+      df <- data.frame("Elevation" = elev$results$elevation)
+      }
+    else
+      NULL
+  }, digits = 0)
+    
     output$download <- downloadHandler(
       filename = function() { paste("converted", ".csv", sep="") },
       content = function(file) {
@@ -69,7 +82,7 @@ shinyServer(function(input, output) {
           x <- data.frame(matrix(sapply(x, as.character), ncol = 2, byrow = TRUE))
           x <- cbind(x, convertedCoords())
           names(x) <- c("lat.orig", "long.orig", "long.new", "lat.new")
-          write.csv(x, file, row.names = FALSE)
+          write.csv(x, file, row.names = FALSE, fileEncoding = "UTF-8")
         }
         
       }
@@ -95,7 +108,7 @@ shinyServer(function(input, output) {
         return(NULL)
       x <- read.csv(x$datapath, header = FALSE, sep = input$sep,
                     encoding = "UTF-8", stringsAsFactors = FALSE)
-      colnames(x) <- c("lat", "long")
+      colnames(x) <- c("lat", "lon")
       x
     }, digits = 5)
     
@@ -127,7 +140,17 @@ shinyServer(function(input, output) {
       
     })
     
-    
+    output$elevation <- renderTable({
+      if (input$elevation == TRUE) { 
+        elev <- google_elevation(df_locations = as.data.frame(coordsForLeaflet()),
+                                 location_type = "individual", 
+                                 key = "AIzaSyATwD1Zqpv8M0SPddTLIsDPNo4QAikVTg4",
+                                 simplify = TRUE)
+        df <- data.frame("Elevation" = elev$results$elevation)
+      }
+      else
+        NULL
+    }, digits = 0)
     
     output$download <- downloadHandler(
       filename = function() { paste("converted", ".csv", sep="") },
@@ -144,7 +167,7 @@ shinyServer(function(input, output) {
           print(x)
           x <- cbind(x,convertedCoords())
           colnames(x) <- c("lat.orig", "long.orig", "long.new", "lat.new")
-          write.csv(x, file, row.names = FALSE)
+          write.csv(x, file, row.names = FALSE, fileEncoding = "UTF-8")
         }
           
       }

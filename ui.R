@@ -3,10 +3,10 @@ library(leaflet)
 
 shinyUI(fluidPage(
   
-  titlePanel("WGStoGK - version 0.7"),
+  titlePanel("WGStoGK - version 0.8"),
   
   fluidRow(
-    column(3,
+    column(2,
            textInput("text", label = "Coordinates input", value = "46.05120 14.47035"),
            actionButton("convertText", label = "Convert coordinates"), ### Make button display converted coords.
            h6("Paste your coordinates as displayed above."),
@@ -36,9 +36,10 @@ shinyUI(fluidPage(
            #             choices = list("EPSG:3787", "EPSG:3912",
            #                            "EPSG:3794")),
     ),
-    column(5,
-           br(),
+    column(4,
            leafletOutput("leaflet"),
+           checkboxInput("elevation", h6(strong("Pick elevation")), FALSE),
+           h6("Elevation data in meters above sea level."),
            hr(),
            h6("CRS used: +proj=tmerc +lat_0=0 +lon_0=15 +k=0.9999 +x_0=500000 +y_0=-5000000 +ellps=bessel
               +towgs84=426.9,142.6,460.1,4.91,4.49,-12.42,17.1 +units=m +no_defs")),
@@ -49,6 +50,13 @@ shinyUI(fluidPage(
            h5(strong("Converted coordinates (GK)")),
            tableOutput("new.coords"),
            downloadButton("download", label = "Download CSV file"),
-           checkboxInput("append", label = "Add original coordinates to downloaded file", value = FALSE))
+           checkboxInput("append", label = h6("Add original coordinates to downloaded file"),
+                         value = FALSE)),
+           # checkboxInput("add.elevation", label = h6("Add elevation to converted coordinates"))),
+    column(2,
+           br(),
+           br(),
+           tableOutput("elevation"))
+    
     )))
   
