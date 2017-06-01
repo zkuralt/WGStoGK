@@ -7,7 +7,7 @@ shinyUI(fluidPage(
   
   fluidRow(
     column(2,
-           textInput("text", label = "Coordinates input", value = "46.05120 14.47035"),
+           textInput("text", label = h4(strong("Coordinates input")), value = "46.05120 14.47035"),
            actionButton("convertText", label = "Convert coordinates"), ### Make button display converted coords.
            h6("Paste your coordinates as displayed above."),
            h6("Multiple coordinates in mixed format and separated by space are accepted."),
@@ -17,10 +17,15 @@ shinyUI(fluidPage(
            h6("dd°mm.mmm'	dd°mm.mmm'"),
            h6("dd.dddd°	dd.dddd°"),
            hr(),
-           fileInput('file', 'Upload CSV File',
-                     accept=c('text/csv', 
+           h4(strong("Upload file")),
+           selectInput("fileFormat", label = h5(strong("File format")), 
+                       choices = list("CSV" = "read.csv", "GPX" = "readGPX"), 
+                       selected = 1),
+           fileInput('file', label = NULL, accept=c('text/csv', 
                               'text/comma-separated-values,text/plain', 
-                              '.csv')),
+                              '.csv', '.gpx')),
+           radioButtons("sep", "Separator", c(Comma = ",", Semicolon = ";", 
+                                              Tab = "\t", Period = "."), ","),
            actionButton("convertFile", label = "Convert coordinates"), ### Make button display converted coords.
            br(),
            br(),
@@ -28,15 +33,13 @@ shinyUI(fluidPage(
            h6("Multiple coordinates in mixed format are accepted."),
            br(),
            # checkboxInput("header", "Header", TRUE),
-           radioButtons("sep", "Separator", c(Comma = ",", Semicolon = ";", 
-                                              Tab = "\t", Period = "."), ","),
            hr()
            # selectInput("crs",
            #             label = "Select preffered CRS",
            #             choices = list("EPSG:3787", "EPSG:3912",
            #                            "EPSG:3794")),
     ),
-    column(4,
+    column(5,
            leafletOutput("leaflet"),
            checkboxInput("elevation", h6(strong("Pick elevation")), FALSE),
            h6("Elevation data in meters above sea level."),
@@ -53,7 +56,7 @@ shinyUI(fluidPage(
            checkboxInput("append", label = h6("Add original coordinates to downloaded file"),
                          value = FALSE)),
            # checkboxInput("add.elevation", label = h6("Add elevation to converted coordinates"))),
-    column(2,
+    column(1,
            br(),
            br(),
            tableOutput("elevation"))
