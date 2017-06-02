@@ -4,6 +4,7 @@ library(measurements)
 library(leaflet)
 library(rgdal)
 library(googleway)
+library(plotKML)
 source("anyWGStoDec.R")
 source("testElements.R")
 source("convertBackToWGS.R")
@@ -57,15 +58,15 @@ shinyServer(function(input, output) {
     
     output$elevation <- renderTable({
       if (input$elevation == TRUE) { 
-      elev <- google_elevation(df_locations = as.data.frame(coordsForLeaflet()),
-                               location_type = "individual", 
-                               key = "AIzaSyATwD1Zqpv8M0SPddTLIsDPNo4QAikVTg4",
-                               simplify = TRUE)
-      df <- data.frame("Elevation" = elev$results$elevation)
+        elev <- google_elevation(df_locations = as.data.frame(coordsForLeaflet()),
+                                 location_type = "individual", 
+                                 key = "AIzaSyATwD1Zqpv8M0SPddTLIsDPNo4QAikVTg4",
+                                 simplify = TRUE)
+        df <- data.frame("Elevation" = elev$results$elevation)
       }
-    else
-      NULL
-  }, digits = 0)
+      else
+        NULL
+    }, digits = 0)
     
     output$download <- downloadHandler(
       filename = function() { paste("converted", ".csv", sep="") },
@@ -96,21 +97,40 @@ shinyServer(function(input, output) {
       x <- input$file
       if (is.null(x))
         return(NULL)
-      x <- read.csv(x$datapath, header = FALSE, sep = input$sep, 
-                    encoding = "UTF-8", stringsAsFactors = FALSE)
-      x <- prepareCoords(x)
-      x
+      else {
+        if (input$fileFormat %in% "CSV") {
+          x <- read.csv(x$datapath, header = FALSE, sep = input$sep, 
+                        encoding = "UTF-8", stringsAsFactors = FALSE)
+          x <- prepareCoords(x)
+          x
+        }
+        else {
+          gpx <- readGPX(x$datapath)
+          x <- data.frame(lat = gpx$waypoints[,2], lon = gpx$waypoints[,1])
+          x <- prepareCoords(x)
+          x
+        }
+      }
     })
     
     output$coords <- renderTable({
       x <- input$file
       if (is.null(x))
         return(NULL)
+      else {
+        if (input$fileFormat %in% "CSV") {
       x <- read.csv(x$datapath, header = FALSE, sep = input$sep,
                     encoding = "UTF-8", stringsAsFactors = FALSE)
       colnames(x) <- c("lat", "lon")
       x
+        }
+        else {
+          x <- readGPX(x$datapath)
+          x <- x$waypoints[,1:2]
+          x
+        }}
     }, digits = 5)
+      
     
     convertedCoords <- reactive({
       coordinates(convertFileToGK(coordFileInput()))
@@ -169,7 +189,7 @@ shinyServer(function(input, output) {
           colnames(x) <- c("lat.orig", "long.orig", "long.new", "lat.new")
           write.csv(x, file, row.names = FALSE, fileEncoding = "UTF-8")
         }
-          
+        
       }
     )
   })

@@ -19,7 +19,7 @@ shinyUI(fluidPage(
            hr(),
            h4(strong("Upload file")),
            selectInput("fileFormat", label = h5(strong("File format")), 
-                       choices = list("CSV" = "read.csv", "GPX" = "readGPX"), 
+                       choices = list("CSV", "GPX"), 
                        selected = 1),
            fileInput('file', label = NULL, accept=c('text/csv', 
                               'text/comma-separated-values,text/plain', 
