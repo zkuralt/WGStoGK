@@ -18,7 +18,7 @@ shinyUI(fluidPage(
            h6("dd.dddd°	dd.dddd°"),
            hr(),
            h4(strong("Upload file")),
-           selectInput("fileFormat", label = h5(strong("File format")), 
+           selectInput("fileFormat", label = h5(strong("Select file format")), 
                        choices = list("CSV", "GPX"), 
                        selected = 1),
            fileInput('file', label = NULL, accept=c('text/csv', 
@@ -29,7 +29,7 @@ shinyUI(fluidPage(
            actionButton("convertFile", label = "Convert coordinates"), ### Make button display converted coords.
            br(),
            br(),
-           h6("Latitude in first column, longitude in second column, no header row."),
+           h6("CSV files should have latitude in first column, longitude in second column, no header row."),
            h6("Multiple coordinates in mixed format are accepted."),
            br(),
            # checkboxInput("header", "Header", TRUE),
@@ -42,7 +42,7 @@ shinyUI(fluidPage(
     column(5,
            leafletOutput("leaflet"),
            checkboxInput("elevation", h6(strong("Pick elevation")), FALSE),
-           h6("Elevation data in meters above sea level."),
+           h6("Elevation data in meters above sea level. (source Google Elevation API)"),
            hr(),
            h6("CRS used: +proj=tmerc +lat_0=0 +lon_0=15 +k=0.9999 +x_0=500000 +y_0=-5000000 +ellps=bessel
               +towgs84=426.9,142.6,460.1,4.91,4.49,-12.42,17.1 +units=m +no_defs")),

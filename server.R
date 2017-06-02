@@ -44,7 +44,7 @@ shinyServer(function(input, output) {
     
     output$leaflet <- renderLeaflet({
       coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
-        sprintf("long: %s lat: %s", z[1], z[2])
+        sprintf("lon: %s lat: %s", z[1], z[2])
       })
       
       leaflet() %>%
