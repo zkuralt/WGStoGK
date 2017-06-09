@@ -12,11 +12,17 @@ source("convertToGK.R")
 source("prepareCoords.R")
 source("convertFileToGK.R")
 
+
 shinyServer(function(input, output) {
+  
+  crs <- reactive({
+    crs <- input$crs
+    crs
+  })
   
   ### Text input
   observeEvent(input$convertText, {
-    
+
     coordInput <- reactive({
       x <- read.table(text = input$text, stringsAsFactors = FALSE)
       x <- prepareCoords(x)
@@ -24,11 +30,11 @@ shinyServer(function(input, output) {
     })
     
     convertedCoords <- reactive({
-      coordinates(convertToGK(coordInput()))
+      coordinates(convertToGK(coordInput(), crs = input$crs))
     })
     
     coordsForLeaflet <- reactive({
-      coordinates(convertBackToWGS(convertToGK(coordInput())))
+      coordinates(convertBackToWGS(convertToGK(coordInput(), crs = input$crs), crs = input$crs))
     })
     
     output$coords <- renderTable({
@@ -41,6 +47,10 @@ shinyServer(function(input, output) {
     output$new.coords <- renderTable({
       coordinates(convertedCoords())
     }, digits = 2)
+    
+    output$selected.crs <- renderText({
+      paste("CRS:", input$crs)
+    })
     
     output$leaflet <- renderLeaflet({
       coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
@@ -133,17 +143,21 @@ shinyServer(function(input, output) {
       
     
     convertedCoords <- reactive({
-      coordinates(convertFileToGK(coordFileInput()))
+      coordinates(convertFileToGK(coordFileInput(), crs = input$crs))
     })
     
     coordsForLeaflet <- reactive({
-      coordinates(convertBackToWGS(convertFileToGK(coordFileInput())))
+      coordinates(convertBackToWGS(convertFileToGK(coordFileInput(), crs = input$crs), crs = input$crs))
     })
     
     
     output$new.coords <- renderTable({
       coordinates(convertedCoords())
     }, digits = 2)
+    
+    output$selected.crs <- renderText({
+      paste("CRS:", input$crs)
+    })
     
     output$leaflet <- renderLeaflet({
       

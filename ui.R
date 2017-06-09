@@ -7,6 +7,10 @@ shinyUI(fluidPage(
   
   fluidRow(
     column(2,
+           selectInput("crs", h4(strong("Select output CRS")), list("Slovenia" = c("EPSG:3912" = "+init=epsg:3912",
+                                                        "EPSG:3787" = "+init=epsg:3787",
+                                                        "EPSG:TEST" = "+proj=tmerc +lat_0=0 +lon_0=15 +k=0.9999 +x_0=500000 +y_0=-5000000 +ellps=bessel +towgs84=426.9,142.6,460.1,4.91,4.49,-12.42,17.1 +units=m +no_defs"),
+                                                 "Italy" = c("EPSG:6875" = "+init=epsg:6875"))),
            textInput("text", label = h4(strong("Coordinates input")), value = "46.05120 14.47035"),
            actionButton("convertText", label = "Convert coordinates"), ### Make button display converted coords.
            h6("Paste your coordinates as displayed above."),
@@ -42,10 +46,9 @@ shinyUI(fluidPage(
     column(5,
            leafletOutput("leaflet"),
            checkboxInput("elevation", h6(strong("Pick elevation")), FALSE),
-           h6("Elevation data in meters above sea level. (source Google Elevation API)"),
+           h6("Elevation data in meters above sea level. (source: Google Elevation API)"),
            hr(),
-           h6("CRS used: +proj=tmerc +lat_0=0 +lon_0=15 +k=0.9999 +x_0=500000 +y_0=-5000000 +ellps=bessel
-              +towgs84=426.9,142.6,460.1,4.91,4.49,-12.42,17.1 +units=m +no_defs")),
+           h6(textOutput("selected.crs"))),
     column(2,
            h5(strong("Original coordinates (WGS)")),
            tableOutput("coords")),
