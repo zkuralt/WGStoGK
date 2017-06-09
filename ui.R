@@ -8,8 +8,8 @@ shinyUI(fluidPage(
   fluidRow(
     column(2,
            selectInput("crs", h4(strong("Select output CRS")), 
-                       selected = "EPSG:3915", 
                        choices = ui.crs),
+           h6("Search for the desired CRS by typing its code above or find it in the dropdown menu."),
            textInput("text", label = h4(strong("Coordinates input")), value = "46.05120 14.47035"),
            actionButton("convertText", label = "Convert coordinates"), ### Make button display converted coords.
            h6("Paste your coordinates as displayed above."),
