@@ -7,10 +7,12 @@ shinyUI(fluidPage(
   
   fluidRow(
     column(2,
-           selectInput("crs", h4(strong("Select output CRS")), list("Slovenia" = c("EPSG:3912" = "+init=epsg:3912",
-                                                        "EPSG:3787" = "+init=epsg:3787",
-                                                        "EPSG:TEST" = "+proj=tmerc +lat_0=0 +lon_0=15 +k=0.9999 +x_0=500000 +y_0=-5000000 +ellps=bessel +towgs84=426.9,142.6,460.1,4.91,4.49,-12.42,17.1 +units=m +no_defs"),
-                                                 "Italy" = c("EPSG:6875" = "+init=epsg:6875"))),
+           selectInput("crs", h4(strong("Select output CRS")), selected = "EPSG:3915", 
+                       # choice = list("Slovenia" = ui.crs[[1]],
+                                     # "Other" = ui.crs[[-1]])),
+                       choice = ui.crs),
+           
+          
            textInput("text", label = h4(strong("Coordinates input")), value = "46.05120 14.47035"),
            actionButton("convertText", label = "Convert coordinates"), ### Make button display converted coords.
            h6("Paste your coordinates as displayed above."),
@@ -26,8 +28,8 @@ shinyUI(fluidPage(
                        choices = list("CSV", "GPX"), 
                        selected = 1),
            fileInput('file', label = NULL, accept=c('text/csv', 
-                              'text/comma-separated-values,text/plain', 
-                              '.csv', '.gpx')),
+                                                    'text/comma-separated-values,text/plain', 
+                                                    '.csv', '.gpx')),
            radioButtons("sep", "Separator", c(Comma = ",", Semicolon = ";", 
                                               Tab = "\t", Period = "."), ","),
            actionButton("convertFile", label = "Convert coordinates"), ### Make button display converted coords.
@@ -58,11 +60,10 @@ shinyUI(fluidPage(
            downloadButton("download", label = "Download CSV file"),
            checkboxInput("append", label = h6("Add original coordinates to downloaded file"),
                          value = FALSE)),
-           # checkboxInput("add.elevation", label = h6("Add elevation to converted coordinates"))),
+    # checkboxInput("add.elevation", label = h6("Add elevation to converted coordinates"))),
     column(1,
            br(),
            br(),
            tableOutput("elevation"))
     
-    )))
-  
+  )))
