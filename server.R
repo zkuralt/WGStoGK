@@ -36,18 +36,22 @@ shinyServer(function(input, output) {
       coordinates(convertBackToWGS(convertToGK(coordInput(), crs = input$crs), crs = input$crs))
     })
     
-    output$coords <- renderTable({
+    originalCoords <- reactive({
       x <- read.table(text = input$text, stringsAsFactors = FALSE)
       x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
-      names(x) <- c("lat", "lon")
+      names(x) <- c("orig.lat", "orig.lon")
       x
-    }, digits = 5)
+    })
+    
+    # output$coords <- renderTable({
+    #   originalCoords()
+    # }, digits = 5)
     
     output$coordsElevation <- renderTable({
-      if (input$elevation == TRUE) {
-        data.frame(coordinates(convertedCoords()), elevation())
+      if (input$elevation == FALSE) {
+        x <- data.frame(originalCoords(), convertedCoords())
       } else {
-        coordinates(convertedCoords())
+        data.frame(originalCoords(), convertedCoords(), elevation())
       }
     })
     
@@ -85,21 +89,24 @@ shinyServer(function(input, output) {
     output$download <- downloadHandler(
       filename = function() { paste("converted", ".csv", sep="") },
       content = function(file) {
-        if(input$append == FALSE) {
-          write.csv(convertedCoords(), file, row.names = FALSE)
+        if (input$add.elevation == FALSE) {
+          if (input$append == FALSE) {
+            write.csv(convertedCoords(), file, row.names = FALSE)
+          } else {
+            x <- data.frame(originalCoords(), convertedCoords())
+            df <- data.frame(lapply(x, as.character), stringsAsFactors = FALSE) 
+            write.csv(df, file, row.names = FALSE)
+          }
         } else {
-          x <- input$text
-          if (is.null(x))
-            return(NULL)
-          x <- read.table(text = input$text, stringsAsFactors = FALSE)
-          x <- sapply(x, gsub, pattern = "\U00B0", replacement = "\U00B0")
-          x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
-          x <- data.frame(matrix(sapply(x, as.character), ncol = 2, byrow = TRUE))
-          x <- cbind(x, convertedCoords())
-          names(x) <- c("lat.orig", "long.orig", "long.new", "lat.new")
-          write.csv(x, file, row.names = FALSE, fileEncoding = "UTF-8")
+          if (input$append == FALSE) {
+            x <- data.frame(convertedCoords(), elevation())
+            write.csv(x, file, row.names = FALSE)
+          } else {
+            x <- data.frame(originalCoords(), convertedCoords(), elevation())
+            df <- data.frame(lapply(x, as.character), stringsAsFactors = FALSE) 
+            write.csv(df, file, row.names = FALSE)
+          }
         }
-        
       }
     )
   })
@@ -127,7 +134,7 @@ shinyServer(function(input, output) {
       }
     })
     
-    output$coords <- renderTable({
+    originalCoords <- reactive({
       x <- input$file
       if (is.null(x))
         return(NULL)
@@ -135,15 +142,20 @@ shinyServer(function(input, output) {
         if (input$fileFormat %in% "CSV") {
           x <- read.csv(x$datapath, header = FALSE, sep = input$sep,
                         encoding = "UTF-8", stringsAsFactors = FALSE)
-          colnames(x) <- c("lat", "lon")
+          colnames(x) <- c("orig.lat", "orig.lon")
           x
         }
         else {
           x <- readGPX(x$datapath)
           x <- x$waypoints[,1:2]
+          colnames(x) <- c("orig.lat", "orig.lon")
           x
         }}
-    }, digits = 5)
+    })
+    
+    # output$coords <- renderTable({
+    #   originalCoords()
+    # }, digits = 5)
     
     
     convertedCoords <- reactive({
@@ -154,12 +166,11 @@ shinyServer(function(input, output) {
       coordinates(convertBackToWGS(convertFileToGK(coordFileInput(), crs = input$crs), crs = input$crs))
     })
     
-    
     output$coordsElevation <- renderTable({
       if (input$elevation == TRUE) {
-        data.frame(coordinates(convertedCoords()), elevation())
+        data.frame(originalCoords(), convertedCoords(), elevation())
       } else {
-        coordinates(convertedCoords())
+        coordinates(originalCoords(), convertedCoords())
       }
     })
     
@@ -195,24 +206,24 @@ shinyServer(function(input, output) {
     output$download <- downloadHandler(
       filename = function() { paste("converted", ".csv", sep="") },
       content = function(file) {
-        if(input$append == FALSE) {
-          write.csv(convertedCoords(), file, row.names = FALSE)
+        if (input$add.elevation == FALSE) {
+          if (input$append == FALSE) {
+            write.csv(convertedCoords(), file, row.names = FALSE)
+          } else {
+            x <- data.frame(originalCoords(), convertedCoords())
+            write.csv(x, file, row.names = FALSE)
+          }
         } else {
-          x <- input$file
-          if (is.null(x))
-            return(NULL)
-          x <- read.csv(x$datapath, header = FALSE, sep = input$sep,
-                        encoding = "UTF-8", stringsAsFactors = FALSE)
-          x <- sapply(x, gsub, pattern = "\U00B0", replacement = "\U00B0")
-          print(x)
-          x <- cbind(x,convertedCoords())
-          colnames(x) <- c("lat.orig", "long.orig", "long.new", "lat.new")
-          write.csv(x, file, row.names = FALSE, fileEncoding = "UTF-8")
+          if (input$append == FALSE) {
+            x <- data.frame(convertedCoords(), elevation())
+            write.csv(x, file, row.names = FALSE)
+          } else {
+            x <- data.frame(originalCoords(), convertedCoords(), elevation())
+            write.csv(x, file, row.names = FALSE)
+          }
         }
-        
       }
     )
+    
   })
-  
-  
 })

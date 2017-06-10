@@ -42,17 +42,18 @@ shinyUI(fluidPage(
            leafletOutput("leaflet"),
            checkboxInput("elevation", h6(strong("Pick elevation")), FALSE),
            h6("Elevation data in meters above sea level. (source: Google Elevation API)"),
-           h6("Up to 512 locations per request."),
+           h6("You can pick elevation for up to 512 locations per request."),
            hr(),
            h6(textOutput("selected.crs"))),
-    column(2,
-           h5(strong("Original coordinates (WGS)")),
-           tableOutput("coords")),
-    column(3,
-           h5(strong("Converted coordinates (GK)")),
+    # column(2,
+    #        h5(strong("Original coordinates")),
+    #        tableOutput("coords")),
+    column(5,
+           h5(strong("Original and converted coordinates")),
            tableOutput("coordsElevation"),
            downloadButton("download", label = "Download CSV file"),
            checkboxInput("append", label = h6("Add original coordinates to downloaded file"),
-                         value = FALSE))
-    # checkboxInput("add.elevation", label = h6("Add elevation to converted coordinates"))),
+                         value = FALSE),
+           checkboxInput("add.elevation", label = h6("Add elevation to converted coordinates (don't forget to pick it first)")))
   )))
+  
