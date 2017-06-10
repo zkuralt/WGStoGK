@@ -49,7 +49,7 @@ shinyUI(fluidPage(
     #        h5(strong("Original coordinates")),
     #        tableOutput("coords")),
     column(5,
-           h5(strong("Original and converted coordinates")),
+           h4(strong("Original and converted coordinates")),
            tableOutput("coordsElevation"),
            downloadButton("download", label = "Download CSV file"),
            checkboxInput("append", label = h6("Add original coordinates to downloaded file"),

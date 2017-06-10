@@ -84,8 +84,6 @@ shinyServer(function(input, output) {
       else
         NULL
     })
-    
-    
     output$download <- downloadHandler(
       filename = function() { paste("converted", ".csv", sep="") },
       content = function(file) {
@@ -153,11 +151,6 @@ shinyServer(function(input, output) {
         }}
     })
     
-    # output$coords <- renderTable({
-    #   originalCoords()
-    # }, digits = 5)
-    
-    
     convertedCoords <- reactive({
       coordinates(convertFileToGK(coordFileInput(), crs = input$crs))
     })
@@ -167,10 +160,10 @@ shinyServer(function(input, output) {
     })
     
     output$coordsElevation <- renderTable({
-      if (input$elevation == TRUE) {
-        data.frame(originalCoords(), convertedCoords(), elevation())
+      if (input$elevation == FALSE) {
+        x <- data.frame(originalCoords(), convertedCoords())
       } else {
-        coordinates(originalCoords(), convertedCoords())
+        data.frame(originalCoords(), convertedCoords(), elevation())
       }
     })
     
