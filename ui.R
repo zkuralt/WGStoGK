@@ -3,7 +3,7 @@ library(leaflet)
 
 shinyUI(fluidPage(
   
-  titlePanel("WGStoGK - version 0.8"),
+  titlePanel("WGStoGK - version 0.8.7"),
   
   fluidRow(
     column(2,
