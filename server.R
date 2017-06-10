@@ -21,7 +21,7 @@ shinyServer(function(input, output) {
   
   ### Text input
   observeEvent(input$convertText, {
-
+    
     coordInput <- reactive({
       x <- read.table(text = input$text, stringsAsFactors = FALSE)
       x <- prepareCoords(x)
@@ -43,9 +43,13 @@ shinyServer(function(input, output) {
       x
     }, digits = 5)
     
-    output$new.coords <- renderTable({
-      coordinates(convertedCoords())
-    }, digits = 2)
+    output$coordsElevation <- renderTable({
+      if (input$elevation == TRUE) {
+        data.frame(coordinates(convertedCoords()), elevation())
+      } else {
+        coordinates(convertedCoords())
+      }
+    })
     
     output$selected.crs <- renderText({
       paste("CRS:", input$crs)
@@ -65,17 +69,18 @@ shinyServer(function(input, output) {
       
     })
     
-    output$elevation <- renderTable({
+    elevation <- reactive({
       if (input$elevation == TRUE) { 
         elev <- google_elevation(df_locations = as.data.frame(coordsForLeaflet()),
                                  location_type = "individual", 
                                  key = "AIzaSyATwD1Zqpv8M0SPddTLIsDPNo4QAikVTg4",
                                  simplify = TRUE)
-        df <- data.frame("Elevation" = elev$results$elevation)
+        df <- data.frame("elevation" = elev$results$elevation)
       }
       else
         NULL
-    }, digits = 0)
+    })
+    
     
     output$download <- downloadHandler(
       filename = function() { paste("converted", ".csv", sep="") },
@@ -128,10 +133,10 @@ shinyServer(function(input, output) {
         return(NULL)
       else {
         if (input$fileFormat %in% "CSV") {
-      x <- read.csv(x$datapath, header = FALSE, sep = input$sep,
-                    encoding = "UTF-8", stringsAsFactors = FALSE)
-      colnames(x) <- c("lat", "lon")
-      x
+          x <- read.csv(x$datapath, header = FALSE, sep = input$sep,
+                        encoding = "UTF-8", stringsAsFactors = FALSE)
+          colnames(x) <- c("lat", "lon")
+          x
         }
         else {
           x <- readGPX(x$datapath)
@@ -139,7 +144,7 @@ shinyServer(function(input, output) {
           x
         }}
     }, digits = 5)
-      
+    
     
     convertedCoords <- reactive({
       coordinates(convertFileToGK(coordFileInput(), crs = input$crs))
@@ -150,16 +155,19 @@ shinyServer(function(input, output) {
     })
     
     
-    output$new.coords <- renderTable({
-      coordinates(convertedCoords())
-    }, digits = 2)
+    output$coordsElevation <- renderTable({
+      if (input$elevation == TRUE) {
+        data.frame(coordinates(convertedCoords()), elevation())
+      } else {
+        coordinates(convertedCoords())
+      }
+    })
     
     output$selected.crs <- renderText({
       paste("CRS:", input$crs)
     })
     
     output$leaflet <- renderLeaflet({
-      
       coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
         sprintf("long: %s lat: %s", z[1], z[2])
       })
@@ -170,20 +178,19 @@ shinyServer(function(input, output) {
         addMarkers(data = coordsForLeaflet(), clusterOptions = markerClusterOptions(),
                    label = coordLabel) %>%
         addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE))
-      
     })
     
-    output$elevation <- renderTable({
+    elevation <- reactive({
       if (input$elevation == TRUE) { 
         elev <- google_elevation(df_locations = as.data.frame(coordsForLeaflet()),
                                  location_type = "individual", 
                                  key = "AIzaSyATwD1Zqpv8M0SPddTLIsDPNo4QAikVTg4",
                                  simplify = TRUE)
-        df <- data.frame("Elevation" = elev$results$elevation)
+        df <- data.frame("elevation" = elev$results$elevation)
       }
       else
         NULL
-    }, digits = 0)
+    })
     
     output$download <- downloadHandler(
       filename = function() { paste("converted", ".csv", sep="") },

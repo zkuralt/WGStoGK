@@ -48,16 +48,11 @@ shinyUI(fluidPage(
     column(2,
            h5(strong("Original coordinates (WGS)")),
            tableOutput("coords")),
-    column(2,
+    column(3,
            h5(strong("Converted coordinates (GK)")),
-           tableOutput("new.coords"),
+           tableOutput("coordsElevation"),
            downloadButton("download", label = "Download CSV file"),
            checkboxInput("append", label = h6("Add original coordinates to downloaded file"),
-                         value = FALSE)),
+                         value = FALSE))
     # checkboxInput("add.elevation", label = h6("Add elevation to converted coordinates"))),
-    column(1,
-           br(),
-           br(),
-           tableOutput("elevation"))
-    
   )))
