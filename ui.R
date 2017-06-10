@@ -38,7 +38,7 @@ shinyUI(fluidPage(
            br(),
            hr()
     ),
-    column(5,
+    column(6,
            leafletOutput("leaflet"),
            checkboxInput("elevation", h6(strong("Pick elevation")), FALSE),
            h6("Elevation data in meters above sea level. (source: Google Elevation API)"),
@@ -48,7 +48,7 @@ shinyUI(fluidPage(
     # column(2,
     #        h5(strong("Original coordinates")),
     #        tableOutput("coords")),
-    column(5,
+    column(4,
            h4(strong("Original and converted coordinates")),
            tableOutput("coordsElevation"),
            downloadButton("download", label = "Download CSV file"),
