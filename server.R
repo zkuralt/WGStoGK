@@ -39,19 +39,19 @@ shinyServer(function(input, output) {
     originalCoords <- reactive({
       x <- read.table(text = input$text, stringsAsFactors = FALSE)
       x <- data.frame(matrix(x, ncol = 2, byrow = TRUE))
-      names(x) <- c("orig.lat", "orig.lon")
+      names(x) <- c("lat", "lon")
       x
     })
     
-    # output$coords <- renderTable({
-    #   originalCoords()
-    # }, digits = 5)
+    output$coords <- renderTable({
+      originalCoords()
+    }, digits = 5)
     
     output$coordsElevation <- renderTable({
       if (input$elevation == FALSE) {
-        x <- data.frame(originalCoords(), convertedCoords())
+        x <- data.frame(convertedCoords())
       } else {
-        data.frame(originalCoords(), convertedCoords(), elevation())
+        data.frame(convertedCoords(), elevation())
       }
     })
     
@@ -84,25 +84,31 @@ shinyServer(function(input, output) {
       else
         NULL
     })
+    
     output$download <- downloadHandler(
       filename = function() { paste("converted", ".csv", sep="") },
       content = function(file) {
         if (input$add.elevation == FALSE) {
           if (input$append == FALSE) {
-            write.csv(convertedCoords(), file, row.names = FALSE)
+            x <- data.frame(convertedCoords())
+            colnames(x) <- c("new.lon", "new.lat")
+            write.csv(x, file, row.names = FALSE, col.names = TRUE)
           } else {
             x <- data.frame(originalCoords(), convertedCoords())
+            colnames(x) <- c("orig.lat", "orig.lon", "new.lon", "new.lat")
             df <- data.frame(lapply(x, as.character), stringsAsFactors = FALSE) 
-            write.csv(df, file, row.names = FALSE)
+            write.csv(df, file, row.names = FALSE, col.names = TRUE)
           }
         } else {
           if (input$append == FALSE) {
             x <- data.frame(convertedCoords(), elevation())
-            write.csv(x, file, row.names = FALSE)
+            colnames(x) <- c("new.lon", "new.lat", "elevation")
+            write.csv(x, file, row.names = FALSE, col.names = TRUE)
           } else {
             x <- data.frame(originalCoords(), convertedCoords(), elevation())
+            colnames(x) <- c("orig.lat", "orig.lon", "new.lon", "new.lat", "elevation")
             df <- data.frame(lapply(x, as.character), stringsAsFactors = FALSE) 
-            write.csv(df, file, row.names = FALSE)
+            write.csv(df, file, row.names = FALSE, col.names = TRUE)
           }
         }
       }
@@ -140,16 +146,20 @@ shinyServer(function(input, output) {
         if (input$fileFormat %in% "CSV") {
           x <- read.csv(x$datapath, header = FALSE, sep = input$sep,
                         encoding = "UTF-8", stringsAsFactors = FALSE)
-          colnames(x) <- c("orig.lat", "orig.lon")
+          colnames(x) <- c("lat", "lon")
           x
         }
         else {
           x <- readGPX(x$datapath)
           x <- x$waypoints[,1:2]
-          colnames(x) <- c("orig.lat", "orig.lon")
+          colnames(x) <- c("lat", "lon")
           x
         }}
     })
+    
+    output$coords <- renderTable({
+      originalCoords()
+    }, digits = 5)
     
     convertedCoords <- reactive({
       coordinates(convertFileToGK(coordFileInput(), crs = input$crs))
@@ -161,9 +171,9 @@ shinyServer(function(input, output) {
     
     output$coordsElevation <- renderTable({
       if (input$elevation == FALSE) {
-        x <- data.frame(originalCoords(), convertedCoords())
+        x <- data.frame(convertedCoords())
       } else {
-        data.frame(originalCoords(), convertedCoords(), elevation())
+        data.frame(convertedCoords(), elevation())
       }
     })
     
@@ -201,18 +211,23 @@ shinyServer(function(input, output) {
       content = function(file) {
         if (input$add.elevation == FALSE) {
           if (input$append == FALSE) {
-            write.csv(convertedCoords(), file, row.names = FALSE)
+            x <- data.frame(convertedCoords())
+            colnames(x) <- c("new.lon", "new.lat")
+            write.csv(x, file, row.names = FALSE, col.names = TRUE)
           } else {
             x <- data.frame(originalCoords(), convertedCoords())
-            write.csv(x, file, row.names = FALSE)
+            colnames(x) <- c("orig.lat", "orig.lon", "new.lon", "new.lat")
+            write.csv(x, file, row.names = FALSE, col.names = TRUE)
           }
         } else {
           if (input$append == FALSE) {
             x <- data.frame(convertedCoords(), elevation())
-            write.csv(x, file, row.names = FALSE)
+            colnames(x) <- c("new.lon", "new.lat", "elevation")
+            write.csv(x, file, row.names = FALSE, col.names = TRUE)
           } else {
             x <- data.frame(originalCoords(), convertedCoords(), elevation())
-            write.csv(x, file, row.names = FALSE)
+            colnames(x) <- c("orig.lat", "orig.lon", "new.lon", "new.lat", "elevation")
+            write.csv(x, file, row.names = FALSE, col.names = TRUE)
           }
         }
       }
