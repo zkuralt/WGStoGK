@@ -56,7 +56,7 @@ shinyServer(function(input, output) {
     })
     
     output$selected.crs <- renderText({
-      paste("CRS:", input$crs)
+      paste("CRS in use:", input$crs)
     })
     
     output$leaflet <- renderLeaflet({
@@ -168,7 +168,7 @@ shinyServer(function(input, output) {
     })
     
     output$selected.crs <- renderText({
-      paste("CRS:", input$crs)
+      paste("CRS in use:", input$crs)
     })
     
     output$leaflet <- renderLeaflet({

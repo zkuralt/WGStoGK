@@ -7,10 +7,6 @@ shinyUI(fluidPage(
   
   fluidRow(
     column(2,
-           selectInput("crs", h4(strong("Select output CRS")), 
-                       choices = ui.crs),
-           h6("Search for the desired CRS by typing its code above or find it in the dropdown menu."),
-           tags$a(href="https://epsg.io/", h6("Find CRS used in your country.")),
            textInput("text", label = h4(strong("Coordinates input")), value = "46.05120 14.47035"),
            actionButton("convertText", label = "Convert coordinates"), ### Make button display converted coords.
            h6("Paste your coordinates as displayed above."),
@@ -30,6 +26,7 @@ shinyUI(fluidPage(
                                                     '.csv', '.gpx')),
            radioButtons("sep", "Separator", c(Comma = ",", Semicolon = ";", 
                                               Tab = "\t", Period = "."), ","),
+           # checkboxInput("header", label = h6("Header"), value = FALSE),
            actionButton("convertFile", label = "Convert coordinates"), ### Make button display converted coords.
            br(),
            br(),
@@ -38,9 +35,9 @@ shinyUI(fluidPage(
            br(),
            hr()
     ),
-    column(6,
+    column(5,
            leafletOutput("leaflet"),
-           checkboxInput("elevation", h6(strong("Pick elevation")), FALSE),
+           checkboxInput("elevation", h6(strong("Pick elevation")), value = FALSE),
            h6("Elevation data in meters above sea level. (source: Google Elevation API)"),
            h6("You can pick elevation for up to 512 locations per request."),
            hr(),
@@ -48,7 +45,12 @@ shinyUI(fluidPage(
     # column(2,
     #        h5(strong("Original coordinates")),
     #        tableOutput("coords")),
-    column(4,
+    column(5,
+           selectInput("crs", h4(strong("Select output CRS")), 
+                       choices = ui.crs),
+           h6("Search for the desired CRS by typing its code above or find it in the dropdown menu."),
+           tags$a(href="https://epsg.io/", h6("Which CRS is used in my area?")),
+           hr(),
            h4(strong("Original and converted coordinates")),
            tableOutput("coordsElevation"),
            downloadButton("download", label = "Download CSV file"),
