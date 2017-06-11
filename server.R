@@ -13,6 +13,10 @@ source("prepareCoords.R")
 source("convertFileToGK.R")
 
 shinyServer(function(input, output) {
+   
+  output$epsg <- renderTable({
+    epsg[,1:3]
+  })
   
   crs <- reactive({
     crs <- input$crs
@@ -123,7 +127,7 @@ shinyServer(function(input, output) {
       if (is.null(x))
         return(NULL)
       else {
-        if (input$fileFormat %in% "CSV") {
+        if (grepl(pattern = ".csv", x$name, ignore.case = TRUE)) {
           x <- read.csv(x$datapath, header = FALSE, sep = input$sep, 
                         encoding = "UTF-8", stringsAsFactors = FALSE)
           x <- prepareCoords(x)
@@ -143,7 +147,7 @@ shinyServer(function(input, output) {
       if (is.null(x))
         return(NULL)
       else {
-        if (input$fileFormat %in% "CSV") {
+        if (grepl(pattern = ".csv", x$name, ignore.case = TRUE)) {
           x <- read.csv(x$datapath, header = FALSE, sep = input$sep,
                         encoding = "UTF-8", stringsAsFactors = FALSE)
           colnames(x) <- c("lat", "lon")

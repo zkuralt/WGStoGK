@@ -8,7 +8,7 @@ shinyUI(fluidPage(
   sidebarLayout(
     
     sidebarPanel(
-      textInput("text", label = h4(strong("Coordinates input")), value = "46.05120 14.47035"),
+      textInput("text", label = h5(strong("Coordinates input")), value = "46.05120 14.47035"),
       actionButton("convertText", label = "Convert coordinates"), ### Make button display converted coords.
       h6("Paste your coordinates as displayed above."),
       h6("Multiple coordinates in mixed format and separated by space are accepted."),
@@ -18,14 +18,11 @@ shinyUI(fluidPage(
       h6("dd°mm.mmm'	dd°mm.mmm'"),
       h6("dd.dddd°	dd.dddd°"),
       hr(),
-      h4(strong("Upload file")),
-      selectInput("fileFormat", label = h5(strong("Select file format")), 
-                  choices = list("CSV", "GPX"), 
-                  selected = 1),
+      h5(strong("Upload file (CSV or GPX)")),
       fileInput('file', label = NULL, accept=c('text/csv', 
                                                'text/comma-separated-values,text/plain', 
                                                '.csv', '.gpx')),
-      radioButtons("sep", "Separator", c(Comma = ",", Semicolon = ";", 
+      radioButtons("sep", "Separator (only for CSV files)", c(Comma = ",", Semicolon = ";", 
                                          Tab = "\t", Period = "."), ","),
       # checkboxInput("header", label = h6("Header"), value = FALSE),
       actionButton("convertFile", label = "Convert coordinates"), ### Make button display converted coords.
@@ -33,22 +30,16 @@ shinyUI(fluidPage(
       br(),
       h6("CSV files should have latitude in first column, longitude in second column, no header row."),
       h6("Multiple coordinates in mixed format are accepted."),
-      br(),
-      hr()
-    ),
+    width = 3),
     
     mainPanel(
       tabsetPanel(
-        tabPanel("Input", 
-                 h4(strong("Original coordinates")),
-                 tableOutput("coords")),
-        tabPanel("Map",
-                 h4(strong("Coords on map")),
+        tabPanel("View locations on map",
                  leafletOutput("leaflet"),
                  hr(),
                  h6(textOutput("selected.crs"))),
-        tabPanel("Output",
-                 selectInput("crs", h4(strong("Select output CRS")), 
+        tabPanel("Configure output",
+                 selectInput("crs", h5(strong("Select output CRS")), 
                              choices = ui.crs),
                  h6("Search for the desired CRS by typing its code above or find it in the dropdown menu."),
                  tags$a(href="https://epsg.io/", h6("Which CRS is used in my area?")),
@@ -62,5 +53,9 @@ shinyUI(fluidPage(
                  downloadButton("download", label = "Download CSV file"),
                  checkboxInput("append", label = h6("Add original coordinates to downloaded file"),
                                value = FALSE),
-                 checkboxInput("add.elevation", label = h6("Add elevation to converted coordinates (don't forget to pick elevation first)")))
-      )))))
+                 checkboxInput("add.elevation", label = h6("Add elevation to converted coordinates (don't forget to pick elevation first)"))),
+        tabPanel("Check input", 
+                 h5(strong("Original coordinates")),
+                 tableOutput("coords")),
+        tabPanel("List of available CRS", tableOutput("epsg"))
+      ), width = 9))))

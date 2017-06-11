@@ -2,6 +2,7 @@
 library(rgdal)
 
 epsg <- make_EPSG()
+epsg <- na.omit(epsg)
 epsg$pretty.name <- paste("EPSG:", epsg$code, sep = "")
 ui.crs <- as.character(epsg$prj4)
 names(ui.crs) <- epsg$pretty.name
@@ -14,3 +15,4 @@ ui.crs <- c(ui.crs[find.important], ui.crs[-find.important])
 
 ui.crs <- split(ui.crs, f = c(rep(1, length.out = length(top.choice)), rep(2, length.out = length(ui.crs) - 3)))
 names(ui.crs) <- c("Slovenia", "Other")
+
