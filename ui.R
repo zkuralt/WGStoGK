@@ -41,7 +41,7 @@ shinyUI(fluidPage(
                  selectInput("crs", h5(strong("Select output CRS")), 
                              choices = ui.crs),
                  h6("Search for the desired CRS by typing its code above or find it in the dropdown menu."),
-                 tags$a(href="https://epsg.io/", h6("Which CRS is used in my area?")),
+                 tags$a(href="https://epsg.io/", h6("Which CRS is used in my area?"), target="_blank"),
                  hr(),
                  checkboxInput("elevation", h6(strong("Pick elevation")), value = FALSE),
                  h6("Elevation data in meters above sea level. (source: Google Elevation API)"),
