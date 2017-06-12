@@ -13,7 +13,7 @@ source("prepareCoords.R")
 source("convertFileToGK.R")
 
 shinyServer(function(input, output) {
-   
+  
   output$epsg <- renderTable({
     epsg[,1:3]
   })
@@ -53,7 +53,7 @@ shinyServer(function(input, output) {
     
     output$coordsElevation <- renderTable({
       if (input$elevation == FALSE) {
-        x <- data.frame(convertedCoords())
+        data.frame(convertedCoords())
       } else {
         data.frame(convertedCoords(), elevation())
       }
@@ -187,7 +187,7 @@ shinyServer(function(input, output) {
     
     output$leaflet <- renderLeaflet({
       coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
-        sprintf("long: %s lat: %s", z[1], z[2])
+        sprintf("lon: %s lat: %s", z[1], z[2])
       })
       
       leaflet() %>%

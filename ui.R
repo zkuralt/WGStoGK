@@ -3,10 +3,9 @@ library(leaflet)
 
 shinyUI(fluidPage(
   
-  titlePanel("WGStoGK - version 0.8.7"),
+  titlePanel("WGStoGK - version 0.9"),
   
   sidebarLayout(
-    
     sidebarPanel(
       textInput("text", label = h5(strong("Coordinates input")), value = "46.05120 14.47035"),
       actionButton("convertText", label = "Convert coordinates"), ### Make button display converted coords.
@@ -23,14 +22,14 @@ shinyUI(fluidPage(
                                                'text/comma-separated-values,text/plain', 
                                                '.csv', '.gpx')),
       radioButtons("sep", "Separator (only for CSV files)", c(Comma = ",", Semicolon = ";", 
-                                         Tab = "\t", Period = "."), ","),
+                                                              Tab = "\t", Period = "."), ","),
       # checkboxInput("header", label = h6("Header"), value = FALSE),
       actionButton("convertFile", label = "Convert coordinates"), ### Make button display converted coords.
       br(),
       br(),
       h6("CSV files should have latitude in first column, longitude in second column, no header row."),
       h6("Multiple coordinates in mixed format are accepted."),
-    width = 3),
+      width = 3),
     
     mainPanel(
       tabsetPanel(
@@ -58,4 +57,8 @@ shinyUI(fluidPage(
                  h5(strong("Original coordinates")),
                  tableOutput("coords")),
         tabPanel("List of available CRS", tableOutput("epsg"))
-      ), width = 9))))
+      ), width = 9)
+  )
+)
+)
+
