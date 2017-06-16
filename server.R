@@ -116,23 +116,23 @@ shinyServer(function(input, output) {
           if (input$append == FALSE) {
             x <- data.frame(convertedCoords())
             colnames(x) <- c("new.lon", "new.lat")
-            write.csv(x, file, row.names = FALSE, col.names = TRUE)
+            write.csv(x, file, row.names = FALSE)
           } else {
             x <- data.frame(originalCoords(), convertedCoords())
             colnames(x) <- c("orig.lat", "orig.lon", "new.lon", "new.lat")
             df <- data.frame(lapply(x, as.character), stringsAsFactors = FALSE) 
-            write.csv(df, file, row.names = FALSE, col.names = TRUE)
+            write.csv(df, file, row.names = FALSE)
           }
         } else {
           if (input$append == FALSE) {
             x <- data.frame(convertedCoords(), elevation())
             colnames(x) <- c("new.lon", "new.lat", "elevation")
-            write.csv(x, file, row.names = FALSE, col.names = TRUE)
+            write.csv(x, file, row.names = FALSE)
           } else {
             x <- data.frame(originalCoords(), convertedCoords(), elevation())
             colnames(x) <- c("orig.lat", "orig.lon", "new.lon", "new.lat", "elevation")
             df <- data.frame(lapply(x, as.character), stringsAsFactors = FALSE) 
-            write.csv(df, file, row.names = FALSE, col.names = TRUE)
+            write.csv(df, file, row.names = FALSE)
           }
         }
       }
@@ -253,21 +253,21 @@ shinyServer(function(input, output) {
           if (input$append == FALSE) {
             x <- data.frame(convertedCoords())
             colnames(x) <- c("new.lon", "new.lat")
-            write.csv(x, file, row.names = FALSE, col.names = TRUE)
+            write.csv(x, file, row.names = FALSE)
           } else {
             x <- data.frame(originalCoords(), convertedCoords())
             colnames(x) <- c("orig.lat", "orig.lon", "new.lon", "new.lat")
-            write.csv(x, file, row.names = FALSE, col.names = TRUE)
+            write.csv(x, file, row.names = FALSE)
           }
         } else {
           if (input$append == FALSE) {
             x <- data.frame(convertedCoords(), elevation())
             colnames(x) <- c("new.lon", "new.lat", "elevation")
-            write.csv(x, file, row.names = FALSE, col.names = TRUE)
+            write.csv(x, file, row.names = FALSE)
           } else {
             x <- data.frame(originalCoords(), convertedCoords(), elevation())
             colnames(x) <- c("orig.lat", "orig.lon", "new.lon", "new.lat", "elevation")
-            write.csv(x, file, row.names = FALSE, col.names = TRUE)
+            write.csv(x, file, row.names = FALSE)
           }
         }
       }
