@@ -23,6 +23,10 @@ shinyServer(function(input, output) {
     crs
   })
   
+  cluster <- reactive({
+    if (input$cluster == TRUE) { markerClusterOptions() } else { NULL }
+  })
+  
   ### Text input
   observeEvent(input$convertText, {
     
@@ -52,10 +56,26 @@ shinyServer(function(input, output) {
     }, digits = 5)
     
     output$coordsElevation <- renderTable({
-      if (input$elevation == FALSE) {
-        data.frame(convertedCoords())
+      if (input$add.elevation == FALSE) {
+        if (input$append == FALSE) {
+          x <- data.frame(convertedCoords())
+          colnames(x) <- c("new.lon", "new.lat")
+          x
+        } else {
+          x <- data.frame(originalCoords(), convertedCoords())
+          colnames(x) <- c("orig.lat", "orig.lon", "new.lon", "new.lat")
+          x
+        }
       } else {
-        data.frame(convertedCoords(), elevation())
+        if (input$append == FALSE) {
+          x <- data.frame(convertedCoords(), elevation())
+          colnames(x) <- c("new.lon", "new.lat", "elevation")
+          x
+        } else {
+          x <- data.frame(originalCoords(), convertedCoords(), elevation())
+          colnames(x) <- c("orig.lat", "orig.lon", "new.lon", "new.lat", "elevation")
+          x
+        }
       }
     })
     
@@ -71,14 +91,14 @@ shinyServer(function(input, output) {
       leaflet() %>%
         addProviderTiles(providers$OpenStreetMap.Mapnik,
                          options = providerTileOptions(noWrap = TRUE)) %>%
-        addMarkers(data = coordsForLeaflet(), clusterOptions = markerClusterOptions(),
+        addMarkers(data = coordsForLeaflet(), clusterOptions = cluster(),
                    label = coordLabel) %>%
         addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE))
       
     })
     
     elevation <- reactive({
-      if (input$elevation == TRUE) { 
+      if (input$add.elevation == TRUE) { 
         elev <- google_elevation(df_locations = as.data.frame(coordsForLeaflet()),
                                  location_type = "individual", 
                                  key = "AIzaSyATwD1Zqpv8M0SPddTLIsDPNo4QAikVTg4",
@@ -174,10 +194,26 @@ shinyServer(function(input, output) {
     })
     
     output$coordsElevation <- renderTable({
-      if (input$elevation == FALSE) {
-        x <- data.frame(convertedCoords())
+      if (input$add.elevation == FALSE) {
+        if (input$append == FALSE) {
+          x <- data.frame(convertedCoords())
+          colnames(x) <- c("new.lon", "new.lat")
+          x
+        } else {
+          x <- data.frame(originalCoords(), convertedCoords())
+          colnames(x) <- c("orig.lat", "orig.lon", "new.lon", "new.lat")
+          x
+        }
       } else {
-        data.frame(convertedCoords(), elevation())
+        if (input$append == FALSE) {
+          x <- data.frame(convertedCoords(), elevation())
+          colnames(x) <- c("new.lon", "new.lat", "elevation")
+          x
+        } else {
+          x <- data.frame(originalCoords(), convertedCoords(), elevation())
+          colnames(x) <- c("orig.lat", "orig.lon", "new.lon", "new.lat", "elevation")
+          x
+        }
       }
     })
     
@@ -193,13 +229,13 @@ shinyServer(function(input, output) {
       leaflet() %>%
         addProviderTiles(providers$OpenStreetMap.Mapnik,
                          options = providerTileOptions(noWrap = TRUE)) %>%
-        addMarkers(data = coordsForLeaflet(), clusterOptions = markerClusterOptions(),
+        addMarkers(data = coordsForLeaflet(), clusterOptions = cluster(),
                    label = coordLabel) %>%
         addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE))
     })
     
     elevation <- reactive({
-      if (input$elevation == TRUE) { 
+      if (input$add.elevation == TRUE) { 
         elev <- google_elevation(df_locations = as.data.frame(coordsForLeaflet()),
                                  location_type = "individual", 
                                  key = "AIzaSyATwD1Zqpv8M0SPddTLIsDPNo4QAikVTg4",
