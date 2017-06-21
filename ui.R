@@ -35,9 +35,7 @@ shinyUI(fluidPage(
       tabsetPanel(
         tabPanel("View locations on map",
                  leafletOutput("leaflet"),
-                 checkboxInput("cluster", label = h6("Cluster locations"), value = TRUE),
-                 hr(),
-                 h6(textOutput("selected.crs"))),
+                 checkboxInput("cluster", label = h6("Cluster locations"), value = TRUE)),
         tabPanel("Configure output",
                  fluidRow(
                    column(2,
@@ -47,7 +45,9 @@ shinyUI(fluidPage(
                           tags$a(href="https://epsg.io/", h6("Which CRS is used in my area?"), target="_blank")),
                    column(6, 
                           h5(strong("Converted coordinates")),
-                          tableOutput("coordsElevation")),
+                          tableOutput("coordsElevation"),
+                          hr(),
+                          h6(textOutput("selected.crs"))),
                    column(4,
                           h5(strong("Download file")),
                           br(),
