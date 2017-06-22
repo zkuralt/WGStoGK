@@ -60,7 +60,7 @@ shinyUI(fluidPage(
                           br(),
                           checkboxInput("append", label = h6("Add original coordinates to downloaded file"),
                                         value = FALSE),
-                          checkboxInput("add.elevation", label = h6("Add elevation to converted coordinates (don't forget to pick elevation first)")),
+                          checkboxInput("add.elevation", label = h6("Add elevation to converted coordinates")),
                           hr(),
                           h6("Elevation data in meters above sea level. (source: Google Elevation API)"),
                           h6("You can pick elevation for up to 512 locations per request.")))),
