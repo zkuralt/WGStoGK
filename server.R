@@ -287,14 +287,9 @@ shinyServer(function(input, output) {
     })
     observeEvent(input$leaflet_click, {
       click <- input$leaflet_click
-      print(click)
-      print(click$lat)
-      print(click$lng)
-      
       
       coordInput <- reactive({
         x <- data.frame(lat = click$lat, lon = click$lng)
-        print(x)
         x <- prepareCoords(x)
         x
       })
