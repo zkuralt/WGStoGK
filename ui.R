@@ -34,8 +34,13 @@ shinyUI(fluidPage(
     mainPanel(
       tabsetPanel(
         tabPanel("View locations on map",
-                 leafletOutput("leaflet"),
-                 checkboxInput("cluster", label = h6("Cluster locations"), value = TRUE)),
+                 br(),
+                 fluidRow(
+                   column(3,
+                          actionButton("pickFromMap", label = "Pick coordinates from map")),
+                   column(3, 
+                          checkboxInput("cluster", label = h5("Cluster locations"), value = TRUE))),
+                 leafletOutput("leaflet")),
         tabPanel("Configure output",
                  fluidRow(
                    column(2,
@@ -59,9 +64,9 @@ shinyUI(fluidPage(
                           hr(),
                           h6("Elevation data in meters above sea level. (source: Google Elevation API)"),
                           h6("You can pick elevation for up to 512 locations per request.")))),
-        tabPanel("Check input", 
-                 h5(strong("Original coordinates")),
-                 tableOutput("coords")),
+        # tabPanel("Check input", 
+        #          h5(strong("Original coordinates")),
+        #          tableOutput("coords")),
         tabPanel("List of available CRS", tableOutput("epsg"))
       ), width = 9)
   )
