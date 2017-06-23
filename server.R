@@ -16,17 +16,23 @@ source("saveData.R")
 
 shinyServer(function(input, output) {
   
+  ### Some random objects
   output$epsg <- renderTable({
     epsg[,1:3]
   })
-  
   crs <- reactive({
     crs <- input$crs
     crs
   })
-  
   cluster <- reactive({
     if (input$cluster == TRUE) { markerClusterOptions() } else { NULL }
+  })
+  output$leaflet <- renderLeaflet({
+    leaflet() %>% 
+      addProviderTiles(providers$OpenStreetMap.Mapnik,
+                       options = providerTileOptions(noWrap = TRUE)) %>%
+      addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE)) %>% 
+      setView(lng = 14.47035, lat = 46.05120, zoom = 9)
   })
   
   ### Text input
@@ -37,6 +43,7 @@ shinyServer(function(input, output) {
       x <- prepareCoords(x)
       x
     })
+    
     
     convertedCoords <- reactive({
       coordinates(convertToGK(coordInput(), crs = input$crs))
@@ -53,9 +60,9 @@ shinyServer(function(input, output) {
       x
     })
     
-    output$coords <- renderTable({
-      originalCoords()
-    }, digits = 5)
+    # output$coords <- renderTable({
+    #   originalCoords()
+    # }, digits = 5)
     
     output$coordsElevation <- renderTable({
       if (input$add.elevation == FALSE) {
@@ -85,18 +92,14 @@ shinyServer(function(input, output) {
       paste("CRS in use:", input$crs)
     })
     
-    output$leaflet <- renderLeaflet({
-      coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
-        sprintf("lon: %s lat: %s", z[1], z[2])
-      })
-      
-      leaflet() %>%
-        addProviderTiles(providers$OpenStreetMap.Mapnik,
-                         options = providerTileOptions(noWrap = TRUE)) %>%
+    coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
+      sprintf("lon: %s lat: %s", z[1], z[2])
+    })
+    
+    observe({
+      leafletProxy("leaflet", data = coordsForLeaflet()) %>% 
         addMarkers(data = coordsForLeaflet(), clusterOptions = cluster(),
-                   label = coordLabel) %>%
-        addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE))
-      
+                   label = coordLabel)
     })
     
     elevation <- reactive({
@@ -223,17 +226,14 @@ shinyServer(function(input, output) {
       paste("CRS in use:", input$crs)
     })
     
-    output$leaflet <- renderLeaflet({
-      coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
-        sprintf("lon: %s lat: %s", z[1], z[2])
-      })
-      
-      leaflet() %>%
-        addProviderTiles(providers$OpenStreetMap.Mapnik,
-                         options = providerTileOptions(noWrap = TRUE)) %>%
+    coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
+      sprintf("lon: %s lat: %s", z[1], z[2])
+    })
+    
+    observe({
+      leafletProxy("leaflet", data = coordsForLeaflet()) %>% 
         addMarkers(data = coordsForLeaflet(), clusterOptions = cluster(),
-                   label = coordLabel) %>%
-        addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE))
+                   label = coordLabel)
     })
     
     elevation <- reactive({
@@ -277,19 +277,11 @@ shinyServer(function(input, output) {
     
   })
   
-  ## Pick coordinates from map
-  
+  ### Pick coordinates from map
   observeEvent(input$pickFromMap, {
-    output$leaflet <- renderLeaflet({
-      leaflet() %>% 
-        addProviderTiles(providers$OpenStreetMap.Mapnik,
-                         options = providerTileOptions(noWrap = TRUE)) %>%
-        addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE)) %>% 
-        setView(lng = 14.47035, lat = 46.05120, zoom = 9)
-    })
-    
-    
+
     observeEvent(input$leaflet_click, {
+      
       click <- input$leaflet_click
       
       clickData <- reactive({
@@ -317,9 +309,9 @@ shinyServer(function(input, output) {
         responses
       })
       
-      output$coords <- renderTable({
-        originalCoords()
-      }, digits = 5)
+      # output$coords <- renderTable({
+      #   originalCoords()
+      # }, digits = 5)
       
       output$coordsElevation <- renderTable({
         if (input$add.elevation == FALSE) {
@@ -349,18 +341,14 @@ shinyServer(function(input, output) {
         paste("CRS in use:", input$crs)
       })
       
-      output$leaflet <- renderLeaflet({
-        coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
-          sprintf("lon: %s lat: %s", z[1], z[2])
-        })
-        
-        leaflet() %>%
-          addProviderTiles(providers$OpenStreetMap.Mapnik,
-                           options = providerTileOptions(noWrap = TRUE)) %>%
+      coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
+        sprintf("lon: %s lat: %s", z[1], z[2])
+      })
+      
+      observe({
+        leafletProxy("leaflet", data = responses) %>% 
           addMarkers(data = coordsForLeaflet(), clusterOptions = cluster(),
-                     label = coordLabel) %>%
-          addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE))
-        
+                     label = coordLabel)
       })
       
       elevation <- reactive({
@@ -403,6 +391,17 @@ shinyServer(function(input, output) {
           }
         }
       )
+    })
+  })
+  
+  observeEvent(input$removePoints, {
+    base::rm(responses, envir = .GlobalEnv)
+    output$leaflet <- renderLeaflet({
+      leaflet() %>% 
+        addProviderTiles(providers$OpenStreetMap.Mapnik,
+                         options = providerTileOptions(noWrap = TRUE)) %>%
+        addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE)) %>% 
+        setView(lng = 14.47035, lat = 46.05120, zoom = 9)
     })
   })
 })

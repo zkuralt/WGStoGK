@@ -40,7 +40,9 @@ shinyUI(fluidPage(
                           actionButton("pickFromMap", label = "Pick coordinates from map")),
                    column(3, 
                           checkboxInput("cluster", label = h5("Cluster locations"), value = TRUE))),
-                 leafletOutput("leaflet")),
+                 leafletOutput("leaflet"),
+                 br(),
+                 actionButton("removePoints", label = "Remove points")),
         tabPanel("Configure output",
                  fluidRow(
                    column(2,
