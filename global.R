@@ -15,4 +15,3 @@ ui.crs <- c(ui.crs[find.important], ui.crs[-find.important])
 
 ui.crs <- split(ui.crs, f = c(rep(1, length.out = length(top.choice)), rep(2, length.out = length(ui.crs) - 3)))
 names(ui.crs) <- c("Slovenia", "Other")
-

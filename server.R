@@ -11,6 +11,8 @@ source("convertBackToWGS.R")
 source("convertToGK.R")
 source("prepareCoords.R")
 source("convertFileToGK.R")
+source("convertClickToGK.R")
+source("saveData.R")
 
 shinyServer(function(input, output) {
   
@@ -285,25 +287,34 @@ shinyServer(function(input, output) {
         addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE)) %>% 
         setView(lng = 14.47035, lat = 46.05120, zoom = 9)
     })
+    
+    
     observeEvent(input$leaflet_click, {
       click <- input$leaflet_click
       
+      clickData <- reactive({
+        data <- data.frame(click$lat, click$lng)
+        data
+      })
+      
+      saveData(clickData())
+      
       coordInput <- reactive({
-        x <- data.frame(lat = click$lat, lon = click$lng)
+        x <- responses
         x <- prepareCoords(x)
         x
       })
       
       convertedCoords <- reactive({
-        coordinates(convertToGK(coordInput(), crs = input$crs))
+        coordinates(convertClickToGK(coordInput(), crs = input$crs))
       })
       
       coordsForLeaflet <- reactive({
-        coordinates(convertBackToWGS(convertToGK(coordInput(), crs = input$crs), crs = input$crs))
+        coordinates(convertBackToWGS(convertClickToGK(coordInput(), crs = input$crs), crs = input$crs))
       })
       
       originalCoords <- reactive({
-        data.frame(orig.lat = click$lat, orig.lon = click$lng)
+        responses
       })
       
       output$coords <- renderTable({
@@ -318,7 +329,7 @@ shinyServer(function(input, output) {
             x
           } else {
             x <- data.frame(originalCoords(), convertedCoords())
-            colnames(x) <- c("orig.lat", "orig.lon", "new.lon", "new.lat")
+            colnames(x) <- c("click.lat", "click.lon", "new.lon", "new.lat")
             x
           }
         } else {
@@ -328,7 +339,7 @@ shinyServer(function(input, output) {
             x
           } else {
             x <- data.frame(originalCoords(), convertedCoords(), elevation())
-            colnames(x) <- c("orig.lat", "orig.lon", "new.lon", "new.lat", "elevation")
+            colnames(x) <- c("click.lat", "click.lon", "new.lon", "new.lat", "elevation")
             x
           }
         }
@@ -392,10 +403,6 @@ shinyServer(function(input, output) {
           }
         }
       )
-      
-      
-      
     })
-    
   })
 })
