@@ -7,7 +7,7 @@ shinyUI(fluidPage(
   
   sidebarLayout(
     sidebarPanel(
-      textInput("text", label = h5(strong("Coordinates input"))),
+      textInput("text", label = h5(strong("Coordinates input")), value = "46.05120 14.47035"),
       # h6("Paste your coordinates as displayed above."),
       h6("Multiple coordinates in mixed format and separated by space are accepted."),
       br(),
