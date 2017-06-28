@@ -38,7 +38,7 @@ shinyServer(function(input, output) {
   ### COORDINATES INPUT ###
   #########################
   
-  textInput <- reactive({
+  textInput <- eventReactive(input$text, {
     x <- input$text
     if (is.null(x))
       return(NULL)
@@ -50,7 +50,7 @@ shinyServer(function(input, output) {
     }
   })
   
-  fileInput <- reactive({
+  fileInput <- eventReactive(input$file, {
     x <- input$file
     if (is.null(x))
       return(NULL)

@@ -38,7 +38,7 @@ shinyUI(fluidPage(
                    column(2, 
                           checkboxInput("cluster", label = h5("Cluster locations"), value = TRUE)),
                    column(3,
-                          actionButton("convert", label = "Convert coordinates!!!"))),
+                          submitButton("submit"))),
                  fluidRow(
                    column(9,
                           leafletOutput("leaflet")),

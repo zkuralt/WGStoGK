@@ -1,7 +1,7 @@
 saveData <- function(data) {
   if (exists("responses")) {
-    responses <<- rbind(responses, data)
+    input <<- rbind(input, data)
   } else {
-    responses <<- data
+    input <<- data
   }
 }
