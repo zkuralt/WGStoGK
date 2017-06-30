@@ -21,13 +21,16 @@ path <- paste(paste(path, collapse = ""), ".sqlite", sep = "")
 
 mydb <- dbConnect(RSQLite::SQLite(), path)
 
-dbSendQuery(conn = mydb, "CREATE TABLE input(
+create.db <- dbSendQuery(conn = mydb, "CREATE TABLE input(
             lat CHARACTER,
             lon CHARACTER,
-            type CHARACTER
+            type CHARACTER,
+            plotted INTEGER
             )")
+dbClearResult(create.db)
 
 saveData <- function(data, path) {
+  data$plotted <- 0
   dbWriteTable(mydb, "input", data, append = TRUE)
   data
   }

@@ -106,15 +106,32 @@ shinyServer(function(input, output) {
     coordsForLeaflet <- reactive({
       x <- preparedCoords()
       if (all(is.na(x))) return(NULL)
-      
       coordinates(convertBackToWGS(convertToGK(x, crs = input$crs), crs = input$crs))
     })
     
     if (!is.null(coordsForLeaflet())) {
-      coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
+      # Get only points which are new.
+      xy <- dbReadTable(conn = mydb, name = "input")
+      print(xy)
+      xy <- xy[xy$plotted == 0, ]
+      # And then update the values to being plotted.
+      send.db <- dbSendStatement(conn = mydb, statement = "UPDATE input
+                  SET plotted = 1;")
+      dbClearResult(send.db)
+      
+      # Coerce to numeric.
+      xy <- xy[, 1:2]
+      
+      # Construct labels for the map.
+      coordLabel <- apply(xy, MARGIN = 1, FUN = function(z) {
         sprintf("lon: %s lat: %s", z[1], z[2])
       })
-      leafletProxy("leaflet", data = coordsForLeaflet()) %>%
+      
+      xy <- matrix(apply(xy, MARGIN = 2, as.numeric), ncol = 2)
+      xy <- SpatialPoints(xy, proj4string = CRS(input$crs))
+      
+      # Add points to the map.
+      leafletProxy("leaflet", data = xy) %>%
         addMarkers(clusterOptions = cluster())
     } 
     
@@ -151,7 +168,6 @@ shinyServer(function(input, output) {
       NULL
   })
   
-  
   observeEvent(input$convert, {
     output$coordsElevation <- renderTable({
       if (input$add.elevation == FALSE) {
@@ -182,8 +198,6 @@ shinyServer(function(input, output) {
     paste("CRS in use:", input$crs)
   })
   
-  
-  
   output$download <- downloadHandler(
     filename = function() { paste("converted", ".csv", sep="") },
     content = function(file) {
@@ -213,7 +227,6 @@ shinyServer(function(input, output) {
     }
   )
   
-  # cleaning up
   onSessionEnded(function() {
     dbDisconnect(mydb)
     unlink(path)
