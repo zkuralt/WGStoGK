@@ -1,5 +1,6 @@
 # This chunk will create EPSG codes and display it in desired order.
 library(rgdal)
+library(DBI)
 
 epsg <- make_EPSG()
 epsg$pretty.name <- paste("EPSG:", epsg$code, sep = "")
@@ -14,3 +15,35 @@ ui.crs <- c(ui.crs[find.important], ui.crs[-find.important])
 
 ui.crs <- split(ui.crs, f = c(rep(1, length.out = length(top.choice)), rep(2, length.out = length(ui.crs) - 3)))
 names(ui.crs) <- c("Slovenia", "Other")
+
+path <- sample(letters, 15, replace = TRUE)
+path <- paste(paste(path, collapse = ""), ".sqlite", sep = "")
+
+mydb <- dbConnect(RSQLite::SQLite(), path)
+
+dbSendQuery(conn = mydb, "CREATE TABLE input(
+            lat CHARACTER,
+            lon CHARACTER,
+            type CHARACTER
+            )")
+
+on.exit({
+  dbDisconnect(mydb)
+  unlink(path)
+})
+
+saveData <- function(data, path) {
+  tempdb <- dbConnect(RSQLite::SQLite(), path)
+  dbWriteTable(tempdb, "input", data, append = TRUE)
+  dbDisconnect(tempdb)
+  data
+  }
+
+
+loadData <- function(db) {
+  tempdb <- dbConnect(RSQLite::SQLite(), db)
+  x <- dbReadTable(tempdb, "input")
+  dbDisconnect(tempdb)
+  x
+}
+
