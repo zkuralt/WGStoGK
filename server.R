@@ -42,10 +42,7 @@ shinyServer(function(input, output) {
     x <- read.table(text = input$text, stringsAsFactors = FALSE)
     colnames(x) <- c("lat", "lon")
     x$type <- "text"
-    print(path)
     saveData(x, path)
-    # y <- loadData(path)
-    # print(y)
     x
   })
   
@@ -106,10 +103,6 @@ shinyServer(function(input, output) {
       prepareCoords(x[, 1:2])
     })
     
-    # preparedCoords <- function(x) {
-    #   prepareCoords(workCoords())
-    # }
-    
     coordsForLeaflet <- reactive({
       x <- preparedCoords()
       if (all(is.na(x))) return(NULL)
@@ -118,11 +111,11 @@ shinyServer(function(input, output) {
     })
     
     if (!is.null(coordsForLeaflet())) {
-    coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
-      sprintf("lon: %s lat: %s", z[1], z[2])
-    })
-    leafletProxy("leaflet", data = coordsForLeaflet()) %>%
-      addMarkers(clusterOptions = cluster())
+      coordLabel <- apply(coordinates(coordsForLeaflet()), MARGIN = 1, FUN = function(z) {
+        sprintf("lon: %s lat: %s", z[1], z[2])
+      })
+      leafletProxy("leaflet", data = coordsForLeaflet()) %>%
+        addMarkers(clusterOptions = cluster())
     } 
     
   })
@@ -235,5 +228,10 @@ observeEvent(input$removePoints, {
                        options = providerTileOptions(noWrap = TRUE)) %>%
       addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE)) %>% 
       setView(lng = 14.47035, lat = 46.05120, zoom = 9)
+  })
+  
+  on.exit({
+    dbDisconnect(mydb)
+    unlink(path)
   })
 })

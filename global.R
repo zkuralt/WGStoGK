@@ -27,18 +27,12 @@ dbSendQuery(conn = mydb, "CREATE TABLE input(
             type CHARACTER
             )")
 
-on.exit({
-  dbDisconnect(mydb)
-  unlink(path)
-})
-
 saveData <- function(data, path) {
   tempdb <- dbConnect(RSQLite::SQLite(), path)
   dbWriteTable(tempdb, "input", data, append = TRUE)
   dbDisconnect(tempdb)
   data
   }
-
 
 loadData <- function(db) {
   tempdb <- dbConnect(RSQLite::SQLite(), db)
