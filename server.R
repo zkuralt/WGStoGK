@@ -212,6 +212,12 @@ shinyServer(function(input, output) {
       }
     }
   )
+  
+  # cleaning up
+  onSessionEnded(function() {
+    dbDisconnect(mydb)
+    unlink(path)
+  })
 })
 
 #######################
@@ -228,10 +234,5 @@ observeEvent(input$removePoints, {
                        options = providerTileOptions(noWrap = TRUE)) %>%
       addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE)) %>% 
       setView(lng = 14.47035, lat = 46.05120, zoom = 9)
-  })
-  
-  on.exit({
-    dbDisconnect(mydb)
-    unlink(path)
   })
 })
