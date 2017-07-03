@@ -11,6 +11,7 @@ source("testElements.R")
 source("convertBackToWGS.R")
 source("convertToGK.R")
 source("prepareCoords.R")
+source("coordsLeaflet.R")
 
 shinyServer(function(input, output) {
   
@@ -71,7 +72,6 @@ shinyServer(function(input, output) {
     }
   })
   
-  observeEvent(input$pickFromMap, {
     observeEvent(input$leaflet_click, {
       click <- input$leaflet_click
       if (is.null(click))
@@ -84,56 +84,44 @@ shinyServer(function(input, output) {
         x
       }
     })
-  })
   
   observeEvent(c(input$submitText, input$submitFile, input$leaflet_click), {
     output$inputCoords <- renderTable({
       x <- loadData(path)
       x <- x[nrow(x):1, ]
-      x
+      x[, 1:3]
     }, rownames = TRUE)
     
     ############################
     ### DISPLAY INPUT ON MAP ###
     ############################
     
-    preparedCoords <- reactive({
+    preparedCoords <- function() {
       x <- loadData(path)
       x <- x[nrow(x):1, ]
       prepareCoords(x[, 1:2])
-    })
+    }
     
     coordsForLeaflet <- reactive({
       x <- preparedCoords()
       if (all(is.na(x))) return(NULL)
-      coordinates(convertBackToWGS(convertToGK(x, crs = input$crs), crs = input$crs))
+      else { coordinates(coordsLeaflet(x)) }
     })
     
     if (!is.null(coordsForLeaflet())) {
-      # Get only points which are new.
-      xy <- dbReadTable(conn = mydb, name = "input")
-      print(xy)
-      xy <- xy[xy$plotted == 0, ]
-      # And then update the values to being plotted.
-      send.db <- dbSendStatement(conn = mydb, statement = "UPDATE input
-                  SET plotted = 1;")
-      dbClearResult(send.db)
-      
-      # Coerce to numeric.
-      xy <- xy[, 1:2]
-      
       # Construct labels for the map.
-      coordLabel <- apply(xy, MARGIN = 1, FUN = function(z) {
+      coordLabel <- apply(coordsForLeaflet(), MARGIN = 1, FUN = function(z) {
         sprintf("lon: %s lat: %s", z[1], z[2])
       })
       
-      xy <- matrix(apply(xy, MARGIN = 2, as.numeric), ncol = 2)
-      xy <- SpatialPoints(xy, proj4string = CRS(input$crs))
+      # Remove existing points
+      leafletProxy("leaflet", data = coordsForLeaflet()) %>%
+        removeMarker(layerId = "1")
       
       # Add points to the map.
-      leafletProxy("leaflet", data = xy) %>%
-        addMarkers(clusterOptions = cluster())
-    } 
+      leafletProxy("leaflet", data = coordsForLeaflet()) %>%
+        addMarkers(clusterOptions = cluster(), layerId = "1", popup = coordLabel)
+    }
     
   })
   
@@ -141,36 +129,54 @@ shinyServer(function(input, output) {
   ### CONVERT COORDS ###
   ######################
   
-  convertedCoords <- reactive({
-    if (exists("preparedCoords")) {
-      coordinates(convertToGK(preparedCoords(), crs = input$crs))
-    } else { NULL }
-  })
-  
-  #########################
-  ### OUTPUT & DOWNLOAD ###
-  #########################
-  
-  crs <- reactive({
-    crs <- input$crs
-    crs
-  })
-  
-  elevation <- reactive({
-    if (input$addElevation == TRUE) { 
-      elev <- google_elevation(df_locations = as.data.frame(coordsForLeaflet()),
-                               location_type = "individual", 
-                               key = "AIzaSyATwD1Zqpv8M0SPddTLIsDPNo4QAikVTg4",
-                               simplify = TRUE)
-      df <- data.frame("elevation" = elev$results$elevation)
-    }
-    else
-      NULL
-  })
-  
   observeEvent(input$convert, {
+    
+    preparedCoords <- function() {
+      x <- loadData(path)
+      x <- x[nrow(x):1, ]
+      prepareCoords(x[, 1:2])
+    }
+    
+    coordsForElevation <- reactive({
+      x <- preparedCoords()
+      if (all(is.na(x))) return(NULL)
+      else { coordinates(coordsLeaflet(x)) }
+    })
+    
+    convertedCoords <- reactive({
+      x <- preparedCoords()
+      coordinates(convertToGK(x, crs = input$crs))
+    })
+    
+    #########################
+    ### OUTPUT & DOWNLOAD ###
+    #########################
+    
+    crs <- reactive({
+      crs <- input$crs
+      crs
+    })
+    
+    elevation <- reactive({
+      if (input$addElevation == TRUE) { 
+        elev <- google_elevation(df_locations = as.data.frame(coordsForElevation()),
+                                 location_type = "individual", 
+                                 key = "AIzaSyATwD1Zqpv8M0SPddTLIsDPNo4QAikVTg4",
+                                 simplify = TRUE)
+        df <- data.frame("elevation" = elev$results$elevation)
+      }
+      else
+        NULL
+    })
+    
+    originalCoords <- reactive({
+      x <- loadData(path)
+      x <- x[nrow(x):1, ]
+      x[, 1:2]
+    })
+    
     output$coordsElevation <- renderTable({
-      if (input$add.elevation == FALSE) {
+      if (input$addElevation == FALSE) {
         if (input$append == FALSE) {
           x <- data.frame(convertedCoords())
           colnames(x) <- c("new.lon", "new.lat")
@@ -199,9 +205,9 @@ shinyServer(function(input, output) {
   })
   
   output$download <- downloadHandler(
-    filename = function() { paste("converted", ".csv", sep="") },
+    filename = function() { paste("converted", ".csv", sep = "") },
     content = function(file) {
-      if (input$add.elevation == FALSE) {
+      if (input$addElevation == FALSE) {
         if (input$append == FALSE) {
           x <- data.frame(convertedCoords())
           colnames(x) <- c("new.lon", "new.lat")
@@ -227,25 +233,31 @@ shinyServer(function(input, output) {
     }
   )
   
+  #######################
+  ### RESTART SESSION ###
+  #######################
+  
+  observeEvent(input$removePoints, {
+    send.db <- dbSendStatement(conn = mydb, statement = "DELETE FROM input;")
+    dbClearResult(send.db)
+    
+    output$inputCoords <- renderTable({
+      x <- loadData(path)
+      x <- x[nrow(x):1, ]
+      x[, 1:3]
+    }, rownames = TRUE)
+    
+    output$leaflet <- renderLeaflet({ # reloads map
+      leaflet() %>% 
+        addProviderTiles(providers$OpenStreetMap.Mapnik,
+                         options = providerTileOptions(noWrap = TRUE)) %>%
+        addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE)) %>% 
+        setView(lng = 14.47035, lat = 46.05120, zoom = 9)
+    })
+  })
+  
   onSessionEnded(function() {
     dbDisconnect(mydb)
     unlink(path)
-  })
-})
-
-#######################
-### RESTART SESSION ###
-#######################
-
-observeEvent(input$removePoints, {
-  
-  dbRemoveTable(mydb, "input") # removes table
-  
-  output$leaflet <- renderLeaflet({ # reloads map
-    leaflet() %>% 
-      addProviderTiles(providers$OpenStreetMap.Mapnik,
-                       options = providerTileOptions(noWrap = TRUE)) %>%
-      addScaleBar(position = "bottomleft", scaleBarOptions(metric = TRUE, imperial = FALSE)) %>% 
-      setView(lng = 14.47035, lat = 46.05120, zoom = 9)
   })
 })
