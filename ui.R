@@ -7,6 +7,7 @@ shinyUI(fluidPage(
   
   sidebarLayout(
     sidebarPanel(
+      # selectInput("crsIn", h5(strong("Select input CRS")), choices = ui.crs),
       textInput("text", label = h5(strong("Coordinates input")), value = "46.05120 14.47035"),
       actionButton("submitText", "Submit coordinates"),
       h6("Paste your coordinates as displayed above."),
@@ -49,7 +50,7 @@ shinyUI(fluidPage(
                  tabPanel("Configure output",
                           fluidRow(
                             column(2,
-                                   selectInput("crs", h5(strong("Select output CRS")), 
+                                   selectInput("crsOut", h5(strong("Select output CRS")), 
                                                choices = ui.crs),
                                    h6("Search for the desired CRS by typing its code above or find it in the dropdown menu."),
                                    tags$a(href="https://epsg.io/", h6("Which CRS is used in my area?"), target="_blank"),

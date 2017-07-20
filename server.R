@@ -24,7 +24,9 @@ shinyServer(function(input, output) {
   })
   
   cluster <- reactive({
-    if (input$cluster == TRUE) { markerClusterOptions() } else { NULL }
+    x <- input$cluster
+    print(x)
+    if (x == TRUE) { markerClusterOptions() } else { NULL }
   })
   
   output$leaflet <- renderLeaflet({
@@ -145,15 +147,20 @@ shinyServer(function(input, output) {
     
     convertedCoords <- reactive({
       x <- preparedCoords()
-      coordinates(convertToGK(x, crs = input$crs))
+      coordinates(convertToGK(x, crs = input$crsOut))
     })
     
     #########################
     ### OUTPUT & DOWNLOAD ###
     #########################
     
-    crs <- reactive({
-      crs <- input$crs
+    crsIn <- reactive({
+      crs <- input$crsIn
+      crs
+    })
+    
+    crsOut <- reactive({
+      crs <- input$crsOut
       crs
     })
     
@@ -201,7 +208,7 @@ shinyServer(function(input, output) {
   })
   
   output$selectedCRS <- renderText({
-    paste("CRS in use:", input$crs)
+    paste("CRS in use:", input$crsOut)
   })
   
   output$download <- downloadHandler(
