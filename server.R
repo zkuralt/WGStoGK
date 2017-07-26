@@ -145,7 +145,7 @@ shinyServer(function(input, output) {
         }
         else {
           x <- readGPX(x$datapath)
-          x <- x$waypoints[,1:2]
+          x <- x$waypoints[ ,1:2]
           colnames(x) <- c("orig.lat", "orig.lon")
           x
         }}
@@ -161,7 +161,7 @@ shinyServer(function(input, output) {
     
     output$coordsElevation <- renderTable({
       if (input$elevation == FALSE) {
-        x <- data.frame(originalCoords(), convertedCoords())
+        data.frame(originalCoords(), convertedCoords())
       } else {
         data.frame(originalCoords(), convertedCoords(), elevation())
       }
